@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "queue.h"
+#include "process.h"
+#include "mem.h"
 
 // Global variable for keeping track of simulation time and cycle
 int sim_time = 0;
@@ -14,6 +17,7 @@ enum Quanta {
 
 int main() {
     // TODO: add queue data structures to store process data, specific queue type to be determined
+    
     // TODO: read in the process process data from file and the memory management requirement and quantum used from stdin
     return 0;
 }
