@@ -1,7 +1,8 @@
 #include "process.h"
 
 // create process
-Process *create_process(int time, char *name, int rtime, int mem, p_state state) {
+Process *create_process(int time, char *name, int rtime, int mem,
+                        p_state state) {
     Process *p = (Process *)malloc(sizeof(Process));
     assert(p != NULL);
 
@@ -37,7 +38,12 @@ char *get_state(Process *p) {
 }
 
 // print process info
-void print_process(Process *p) {
-    printf("%d,%s,process-name=%s,remaining-time=%d\n", p->time, get_state(p),
+void print_running_process(Process *p, int sim_time) {
+    printf("%d,%s,process-name=%s,remaining-time=%d\n", sim_time, get_state(p),
            p->name, p->rtime);
+}
+
+void print_finished_process(Process *p, int sim_time, int list_length) {
+    printf("%d,%s,process-name=%s,proc-remaining=%d\n", sim_time, get_state(p),
+           p->name, list_length);
 }
