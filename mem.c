@@ -28,4 +28,19 @@ void allocate_memory(int size, memory_strategy_t strategy) {
 }
 
 // TODO: Implement individual memory strategy functions
+void infinite() {
+    // Implement infinite memory allocation strategy
+}
+
+void first_fit() {
+    // Implement first fit memory allocation strategy
+}
+
+void paged() {
+    // Implement paged memory allocation strategy
+}
+
+void virtual() {
+    // Implement virtual memory allocation strategy
+}
 
