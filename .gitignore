@@ -52,3 +52,7 @@ out/
 *.wmv
 *.flv
 *.swf
+
+cases
+.vscode
+allocate
