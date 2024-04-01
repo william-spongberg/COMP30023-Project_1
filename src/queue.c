@@ -1,4 +1,4 @@
-#include "linked_list.h"
+#include "queue.h"
 
 Node *create_node(Process *p) {
     Node *node = (Node *)malloc(sizeof(Node));
@@ -85,9 +85,9 @@ void print_list(Node *head) {
 
     Node *temp = head;
     do {
-        print_process(temp->process);
+        print_running_process(temp->process, 0);
         printf("points to "); // %p\n", temp->next);
-        print_process(temp->next->process);
+        print_running_process(temp->next->process, 0);
         temp = temp->next;
     } while (temp != head);
     printf("\n");

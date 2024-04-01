@@ -1,5 +1,5 @@
-#ifndef LINKED_LIST_H
-#define LINKED_LIST_H
+#ifndef QUEUE_H
+#define QUEUE_H
 #include "process.h"
 
 // circular linked list
