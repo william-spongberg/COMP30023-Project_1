@@ -1,7 +1,7 @@
 #include "process.h"
 
 // create process
-Process *create_process(int time, char *name, int rtime, int mem, pState state) {
+Process *create_process(int time, char *name, int rtime, int mem, p_state state) {
     Process *p = (Process *)malloc(sizeof(Process));
     assert(p != NULL);
 
