@@ -1,7 +1,7 @@
 #include "process.h"
 
 // create process
-Process *createProcess(int time, char *name, int rtime, int mem, pState state) {
+Process *create_process(int time, char *name, int rtime, int mem, pState state) {
     Process *p = (Process *)malloc(sizeof(Process));
     assert(p != NULL);
 
@@ -14,12 +14,12 @@ Process *createProcess(int time, char *name, int rtime, int mem, pState state) {
 }
 
 // compare process names
-int cmpProcess(Process *p1, Process *p2) {
+int cmp_process(Process *p1, Process *p2) {
     return strcmp(p1->name, p2->name);
 }
 
 // get process state
-char *getState(Process *p) {
+char *get_state(Process *p) {
     switch (p->state) {
     case READY:
         return "READY";
@@ -37,7 +37,7 @@ char *getState(Process *p) {
 }
 
 // print process info
-void printProcess(Process *p) {
-    printf("%d,%s,process-name=%s,remaining-time=%d\n", p->time, getState(p),
+void print_process(Process *p) {
+    printf("%d,%s,process-name=%s,remaining-time=%d\n", p->time, get_state(p),
            p->name, p->rtime);
 }

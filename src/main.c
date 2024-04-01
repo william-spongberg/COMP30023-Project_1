@@ -2,8 +2,8 @@
 #include <getopt.h>
 #include <unistd.h>
 
-Process **loadProcesses(char *filename, int *n);
-void setMemoryStrategy(char *memory_strategy);
+Process **load_processes(char *filename, int *n);
+void set_memory_strategy(char *memory_strategy);
 
 int main(int argc, char *argv[]) {
     char *filename = NULL;
@@ -40,16 +40,16 @@ int main(int argc, char *argv[]) {
     }
 
     // load processes and memory strategy from file
-    Process **processes = loadProcesses(filename, &n);
-    setMemoryStrategy(memory_strategy);
+    Process **processes = load_processes(filename, &n);
+    set_memory_strategy(memory_strategy);
 
     // do round robin scheduling
-    roundRobinScheduling(processes, n, quantum);
+    round_robin_scheduling(processes, n, quantum);
 
     return 0;
 }
 
-Process **loadProcesses(char *filename, int *n) {
+Process **load_processes(char *filename, int *n) {
     // open file
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -74,7 +74,7 @@ Process **loadProcesses(char *filename, int *n) {
         assert(processes != NULL);
         // TODO: set to BLOCKED since haven't arrived in CPU yet?
         // initial state of READY
-        processes[*n] = createProcess(time, name, rtime, mem, READY);
+        processes[*n] = create_process(time, name, rtime, mem, READY);
         *n += 1;
     }
     fclose(file);
@@ -83,7 +83,7 @@ Process **loadProcesses(char *filename, int *n) {
 }
 
 // TODO: set memory strategies
-void setMemoryStrategy(char *memory_strategy) {
+void set_memory_strategy(char *memory_strategy) {
     if (strcmp(memory_strategy, "infinite") == 0) {
         // set strategy
     } else if (strcmp(memory_strategy, "first-fit") == 0) {

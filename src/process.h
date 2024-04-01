@@ -16,9 +16,9 @@ typedef struct Process {
 } Process;
 
 // method signatures
-Process *createProcess(int time, char *name, int rtime, int mem, pState state);
-int cmpProcess(Process *p1, Process *p2);
-char *getState(Process *p);
-void printProcess(Process *p);
+Process *create_process(int time, char *name, int rtime, int mem, pState state);
+int cmp_process(Process *p1, Process *p2);
+char *get_state(Process *p);
+void print_process(Process *p);
 
 #endif

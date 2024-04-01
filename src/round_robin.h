@@ -3,8 +3,8 @@
 #include "linked_list.h"
 
 // method signatures
-void roundRobinScheduling(Process **processes, int n, int quantum);
-void printFinishedProcess(int sim_time, Process *p, int list_length);
-void printRunningProcess(Process *p, int sim_time);
+void round_robin_scheduling(Process **processes, int n, int quantum);
+void print_finished_process(int sim_time, Process *p, int list_length);
+void print_running_process(Process *p, int sim_time);
 
 #endif

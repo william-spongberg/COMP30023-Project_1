@@ -9,10 +9,10 @@ typedef struct Node {
 } Node;
 
 // method signatures
-Node *createNode(Process *p);
-void insertNode(Node **head, Process *p);
-void deleteNode(Node **head, Process *p);
-int listLength(Node *head);
-void printList(Node *head);
+Node *create_node(Process *p);
+void insert_node(Node **head, Process *p);
+void delete_node(Node **head, Process *p);
+int list_length(Node *head);
+void print_list(Node *head);
 
 #endif

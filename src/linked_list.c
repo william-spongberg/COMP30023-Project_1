@@ -1,6 +1,6 @@
 #include "linked_list.h"
 
-Node *createNode(Process *p) {
+Node *create_node(Process *p) {
     Node *node = (Node *)malloc(sizeof(Node));
     assert(node != NULL);
 
@@ -9,8 +9,8 @@ Node *createNode(Process *p) {
     return node;
 }
 
-void insertNode(Node **head, Process *p) {
-    Node *node = createNode(p);
+void insert_node(Node **head, Process *p) {
+    Node *node = create_node(p);
     if (*head == NULL) {
         *head = node;
     } else {
@@ -24,7 +24,7 @@ void insertNode(Node **head, Process *p) {
     }
 }
 
-void deleteNode(Node **head, Process *p) {
+void delete_node(Node **head, Process *p) {
     // if empty list
     if (*head == NULL) {
         printf("All processes finished\n");
@@ -32,7 +32,7 @@ void deleteNode(Node **head, Process *p) {
     }
 
     // if deleting single head node
-    if ((cmpProcess((*head)->process, p) == 0) && ((*head)->next == *head)) {
+    if ((cmp_process((*head)->process, p) == 0) && ((*head)->next == *head)) {
         free(*head);
         *head = NULL;
         return;
@@ -42,7 +42,7 @@ void deleteNode(Node **head, Process *p) {
     Node *prev = NULL;
 
     // if deleting head but not single head node
-    if (cmpProcess((current)->process, p) == 0) {
+    if (cmp_process((current)->process, p) == 0) {
         while (current->next != *head)
             current = current->next;
         current->next = (*head)->next;
@@ -53,7 +53,7 @@ void deleteNode(Node **head, Process *p) {
         prev = current;
         current = current->next;
         while (current != *head) {
-            if (cmpProcess((current)->process, p) == 0) {
+            if (cmp_process((current)->process, p) == 0) {
                 prev->next = current->next;
                 free(current);
                 break;
@@ -64,7 +64,7 @@ void deleteNode(Node **head, Process *p) {
     }
 }
 
-int listLength(Node *head) {
+int list_length(Node *head) {
     if (head == NULL)
         return 0;
 
@@ -77,7 +77,7 @@ int listLength(Node *head) {
     return count;
 }
 
-void printList(Node *head) {
+void print_list(Node *head) {
     if (head == NULL) {
         printf("List is empty\n");
         return;
@@ -85,9 +85,9 @@ void printList(Node *head) {
 
     Node *temp = head;
     do {
-        printProcess(temp->process);
+        print_process(temp->process);
         printf("points to "); // %p\n", temp->next);
-        printProcess(temp->next->process);
+        print_process(temp->next->process);
         temp = temp->next;
     } while (temp != head);
     printf("\n");

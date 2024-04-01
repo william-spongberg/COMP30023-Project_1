@@ -1,6 +1,6 @@
 #include "round_robin.h"
 
-void roundRobinScheduling(Process **processes, int n, int quantum) {
+void round_robin_scheduling(Process **processes, int n, int quantum) {
     Node *current = NULL;
     Process *p = NULL;
     int sim_time = 0;
@@ -13,14 +13,14 @@ void roundRobinScheduling(Process **processes, int n, int quantum) {
         for (int i = j; i < n; i++) {
             // insert processes at correct arrival time
             if (processes[i]->time <= sim_time) {
-                insertNode(&current, processes[i]);
+                insert_node(&current, processes[i]);
                 p = processes[i];
                 j = i + 1;
 
                 // if only process, set to RUNNING
-                if (listLength(current) == 1) {
+                if (list_length(current) == 1) {
                     p->state = RUNNING;
-                    printRunningProcess(p, sim_time);
+                    print_running_process(p, sim_time);
                     // TODO: refactor this
                     if (p->rtime > quantum) {
                         // increment simulation time
@@ -39,7 +39,7 @@ void roundRobinScheduling(Process **processes, int n, int quantum) {
             if (p == NULL) {
                 p = current->process;
                 p->state = RUNNING;
-                printRunningProcess(p, sim_time);
+                print_running_process(p, sim_time);
             } else if (current != current->next) {
                 // if not only process, set to READY and switch
                 p->state = READY;
@@ -47,7 +47,7 @@ void roundRobinScheduling(Process **processes, int n, int quantum) {
                 current = current->next;
                 p = current->process;
                 p->state = RUNNING;
-                printRunningProcess(p, sim_time);
+                print_running_process(p, sim_time);
             }
 
             // run the process
@@ -63,10 +63,10 @@ void roundRobinScheduling(Process **processes, int n, int quantum) {
                 p->rtime = 0;
                 p->state = FINISHED;
                 proc_remaining--;
-                printFinishedProcess(sim_time, p, listLength(current) - 1);
+                print_finished_process(sim_time, p, list_length(current) - 1);
 
                 // delete process
-                deleteNode(&current, p);
+                delete_node(&current, p);
                 free(p);
                 p = NULL;
             }
@@ -77,12 +77,12 @@ void roundRobinScheduling(Process **processes, int n, int quantum) {
     }
 }
 
-void printFinishedProcess(int sim_time, Process *p, int list_length) {
-    printf("%d,%s,process-name=%s,proc-remaining=%d\n", sim_time, getState(p),
+void print_finished_process(int sim_time, Process *p, int list_length) {
+    printf("%d,%s,process-name=%s,proc-remaining=%d\n", sim_time, get_state(p),
            p->name, list_length);
 }
 
-void printRunningProcess(Process *p, int sim_time) {
-    printf("%d,%s,process-name=%s,remaining-time=%d\n", sim_time, getState(p),
+void print_running_process(Process *p, int sim_time) {
+    printf("%d,%s,process-name=%s,remaining-time=%d\n", sim_time, get_state(p),
            p->name, p->rtime);
 }
