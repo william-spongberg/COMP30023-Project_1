@@ -1,4 +1,6 @@
-COMP30023 2024 - Project 1
+# COMP30023 2024 - Project 1 #
+
+## Test Cases ##
 
 ./allocate -f cases/task1/spec.txt -q 1 -m infinite | diff - cases/task1/spec-q1.out
 ./allocate -f cases/task1/two-processes.txt -q 1 -m infinite | diff - cases/task1/two-processes-q1.out
@@ -22,3 +24,8 @@ COMP30023 2024 - Project 1
 ./allocate -f cases/task2/non-fit.txt -q 3 -m first-fit | diff - cases/task2/non-fit-q3.out
 ./allocate -f cases/task3/simple-alloc.txt -q 3 -m paged | diff - cases/task3/simple-alloc-q3.out
 ./allocate -f cases/task4/to-evict.txt -q 3 -m virtual | diff - cases/task4/to-evict-q3.out
+
+## Debugging ##
+
+valgrind --leak-check=full --show-leak-kinds=all ./[test case]
+gdb --args ./[test case]
