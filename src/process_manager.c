@@ -45,7 +45,7 @@ bool process_completed(Process *p) {
     return p->rtime == 0;
 }
 
-void print_process(Process *p, block_memory_t *mem, mem_strategy strategy,
+void print_process(Process *p, void *mem, mem_strategy strategy,
                    int sim_time) {
     switch(strategy) {
         case INFINITE: 
@@ -63,12 +63,12 @@ void print_process(Process *p, block_memory_t *mem, mem_strategy strategy,
     }
 }
 
-void run_process(Process **p, block_memory_t *mem, p_state *curr_state,
-                 mem_strategy mem_strategy, int sim_time) {
+void run_process(Process **p, void *mem, p_state *curr_state,
+                 mem_strategy strategy, int sim_time) {
     (*p)->state = RUNNING;
     if (*curr_state != (*p)->state) {
         *curr_state = (*p)->state;
-        print_process(*p, mem, mem_strategy, sim_time);
+        print_process(*p, mem, strategy, sim_time);
     }
 }
 
