@@ -9,13 +9,26 @@ Node *create_node(Process *p) {
     return node;
 }
 
-void insert_node(Node **head, Process *p) {
-    Node *node = create_node(p);
+void insert_node(Node **head, Process **p) {
+    Node *node = create_node(*p);
     if (*head == NULL) {
         *head = node;
     } else {
         Node *temp = *head;
+        // check if process is already in the list
+        do {
+            // if process is already in the list, free node and process
+            if (temp != NULL && cmp_process(temp->process, *p) == 0) {
+                free(node);
+                free(*p);
+                *p = NULL;
+                return;
+            }
+            temp = temp->next;
+        } while (temp != *head);
+
         // find node before head
+        temp = *head;
         while (temp->next != *head)
             temp = temp->next;
         // insert node before head

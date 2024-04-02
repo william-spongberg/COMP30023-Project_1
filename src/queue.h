@@ -10,7 +10,7 @@ typedef struct Node {
 
 // method signatures
 Node *create_node(Process *p);
-void insert_node(Node **head, Process *p);
+void insert_node(Node **head, Process **p);
 void delete_node(Node **head, Process *p);
 int list_length(Node *head);
 void print_list(Node *head);
