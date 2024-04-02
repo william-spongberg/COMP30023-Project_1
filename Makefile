@@ -17,7 +17,7 @@ all: $(EXE)
 
 # link object files to executable
 $(EXE): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # create object files before linking
 $(OBJ): | $(OBJ_DIR)
