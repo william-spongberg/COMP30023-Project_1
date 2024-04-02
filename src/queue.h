@@ -12,6 +12,7 @@ typedef struct Node {
 Node *create_node(Process *p);
 void insert_node(Node **head, Process **p);
 void delete_node(Node **head, Process *p);
+Node *get_tail(Node *head);
 int list_length(Node *head);
 void print_list(Node *head);
 
