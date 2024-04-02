@@ -1,6 +1,8 @@
 #ifndef process_H
 #define process_H
 #include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +14,7 @@ typedef struct Process {
     char name[8];  // name of process
     int rtime;     // remaining time
     int mem;       // amount of memory required
+    int16_t addr;  // address of memory allocated
     p_state state; // current state of process
 } Process;
 

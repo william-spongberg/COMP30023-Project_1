@@ -10,6 +10,7 @@ Process *create_process(int time, char *name, int rtime, int mem,
     strcpy(p->name, name);
     p->rtime = rtime;
     p->mem = mem;
+    p->addr = -1;
     p->state = state;
     return p;
 }
