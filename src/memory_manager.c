@@ -81,6 +81,19 @@ bool first_fit_allocation(Process **p, block_memory_t *mem) {
     }
 }
 
+bool paged_allocation(Process *p, paged_memory_t *mem) {
+    // check whether p's pages are allocated in memory
+        // if allocated, return true
+        // if not allocated
+            // if memory available, allocate memory, return true
+            // if memory not available
+                // evict tails of queue until enough free frames
+                // allocate memory, return true
+    // return false (default)
+
+
+}
+
 // implement first fit strategy
 int16_t first_fit(block_memory_t *mem, int size) {
     int start = -1;
