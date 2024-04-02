@@ -8,6 +8,7 @@ int main(int argc, char *argv[]) {
     int quantum = 0;
     int opt;
 
+    // TODO: delegate all file and command line reading to read.c
     // parse command line arguments
     while ((opt = getopt(argc, argv, "f:m:q:")) != -1) {
         switch (opt) {
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // simulation
+    // run simulation
     run_simulation(filename, memory_strategy, quantum);
 
     return 0;
