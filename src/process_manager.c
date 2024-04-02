@@ -1,10 +1,10 @@
 #include "process_manager.h"
 
-void run_simulation(char *filename, char *memory_strategy, int quantum) {
+void run_simulation(char *filename, mem_strategy strategy, int quantum) {
     Node *queue = NULL;
     Process *p = NULL;
     int sim_time = 0;
-    memory_t *mem = create_memory(memory_strategy);
+    void *mem = create_memory(strategy);
     p_state curr_state = READY;
 
     // while processes are being loaded or there are still processes to run
@@ -16,7 +16,7 @@ void run_simulation(char *filename, char *memory_strategy, int quantum) {
             p->state = FINISHED;
             curr_state = p->state;
             print_finished_process(p, sim_time, list_length(queue) - 1);
-            finish_process(&queue, &p, &mem);
+            finish_process(&queue, &p, &mem, strategy);
         }
 
         // update state of current process, state of newly allocated process
@@ -25,57 +25,17 @@ void run_simulation(char *filename, char *memory_strategy, int quantum) {
         // check if p exists
         if (p != NULL) {
             // allocate memory if not already allocated
-            // TODO: refactor into memory_manager
-            if (mem != NULL) {
-                if (p->addr == -1) {
-                    if (mem->available >= p->mem) {
-                        p->addr = allocate_memory(mem, memory_strategy, p->mem);
-                    }
-                    // if memory not available, continue to next iteration
-                    else {
-                        continue;
-                    }
-                }
+            if (!(attempt_allocation(&p, mem, strategy))) {
+                continue;
             }
             // run the process
-            run_process(&p, mem, &curr_state, memory_strategy, sim_time);
+            run_process(&p, mem, &curr_state, strategy, sim_time);
         }
         // increment simulation time
         increment_sim_time(&p, &sim_time, quantum);
     }
     // free memory
-    destroy_memory(mem);
-}
-
-// TODO: allow for task2, task3, task4 files
-bool load_processes(Node **queue, char *filename, int sim_time, int quantum) {
-    // open file
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        fprintf(stderr, "Error opening file\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // format: time process-name remaining-time memory
-    Process *p_temp;
-    char name[8];
-    int time, rtime;
-    int mem = 0;
-
-    // read file
-    while (fscanf(file, "%d %s %d %d", &time, name, &rtime, &mem) != EOF) {
-        // if arrived since last cycle, set to READY and add to linked list
-        if ((time >= (sim_time - quantum)) && (time <= sim_time)) {
-            p_temp = create_process(time, name, rtime, mem, READY);
-            insert_node(queue, &p_temp);
-        } else if (time > sim_time) {
-            fclose(file);
-            return true;
-        }
-    }
-    // if reached EOF and no nodes added -> no processes remaining
-    fclose(file);
-    return false;
+    destroy_memory(mem, strategy);
 }
 
 bool process_completed(Process *p) {
@@ -85,30 +45,38 @@ bool process_completed(Process *p) {
     return p->rtime == 0;
 }
 
-void print_process(Process *p, memory_t *mem, char *memory_strategy,
+void print_process(Process *p, block_memory_t *mem, mem_strategy strategy,
                    int sim_time) {
-    if (strcmp(memory_strategy, "infinite") == 0) {
-        print_running_process(p, sim_time);
-    } else if (strcmp(memory_strategy, "first-fit") == 0) {
-        print_memory_process(p, mem, sim_time);
-    } else {
-        printf("ERROR: invalid memory strategy\n");
+    switch(strategy) {
+        case INFINITE: 
+            print_running_process(p, sim_time);
+            break;
+        case FIRST_FIT:
+            print_memory_process(p, mem, sim_time);
+            break;
+        case PAGED:
+            print_memory_process(p, mem, sim_time);
+            break;
+        default:
+            fprintf(stderr, "Invalid memory strategy\n");
+            exit(EXIT_FAILURE);
     }
 }
 
-void run_process(Process **p, memory_t *mem, p_state *curr_state,
-                 char *memory_strategy, int sim_time) {
+void run_process(Process **p, block_memory_t *mem, p_state *curr_state,
+                 mem_strategy mem_strategy, int sim_time) {
     (*p)->state = RUNNING;
     if (*curr_state != (*p)->state) {
         *curr_state = (*p)->state;
-        print_process(*p, mem, memory_strategy, sim_time);
+        print_process(*p, mem, mem_strategy, sim_time);
     }
 }
 
 // remove process and node from linked list
-void finish_process(Node **node, Process **p, memory_t **mem) {
+void finish_process(Node **node, Process **p, void **mem,
+                    mem_strategy strategy) {
     delete_node(node, *p);
-    free_memory(*mem, (*p)->addr, (*p)->mem);
+    free_memory(*mem, strategy, (*p)->addr, (*p)->mem);
     free(*p);
     *p = NULL;
 }
