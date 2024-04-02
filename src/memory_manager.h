@@ -18,6 +18,8 @@ typedef struct block_memory_t{
 // TODO: potentially add page_t as array to process struct on creation
 // figure out number of pages by p->mem / PAGE_SIZE
 // or alternatively keep using paged_memory_t as a sort of MMU
+// FIXME: The page_t struct should only be used by process struct to store in page table linkedlist, and it should inlcude information about the frame it maps to
+// FIXME: Last accessed time and the process it belongs to.
 typedef struct page_t{
     int frame_num;
     char* process_id;
@@ -29,10 +31,11 @@ typedef struct frame_t{
 } frame_t;
 
 // paged memory struct
+// FIXME: Use separate structs for physical memory(frames) and virtual memory(pages)
 typedef struct paged_memory_t{
     int size;
     int available;
-    page_t pages[NUM_PAGES];
+    // page_t pages[NUM_PAGES]; FIXME: commented out for now, this should be a linkedlist of pages in the process struct 
     frame_t frames[NUM_PAGES];
 } paged_memory_t;
 

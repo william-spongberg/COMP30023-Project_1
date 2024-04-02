@@ -30,14 +30,12 @@ block_memory_t *create_block_memory() {
     return mem;
 }
 
+// FIXME: Does this function create the physical memory or the page table for the process? Assume this is physical memory, only the frame number is needed
 paged_memory_t *create_paged_memory() {
     paged_memory_t *mem = (paged_memory_t *)malloc(sizeof(paged_memory_t));
     mem->size = MEM_SIZE;
     mem->available = MEM_SIZE;
     for (int i = 0; i < NUM_PAGES; i++) {
-        mem->pages[i].frame_num = -1;
-        mem->pages[i].process_id = NULL;
-        mem->pages[i].is_allocated = false;
         mem->frames[i].is_allocated = false;
     }
     return mem;
@@ -87,6 +85,7 @@ bool paged_allocation(Process *p, paged_memory_t *mem) {
         // if not allocated
             // if memory available, allocate memory, return true
             // if memory not available
+                // FIXME: according to task3 description, it should evict the tails of the queue but rather the least recently accessed pages
                 // evict tails of queue until enough free frames
                 // allocate memory, return true
     // return false (default)

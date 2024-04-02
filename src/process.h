@@ -15,6 +15,7 @@ typedef struct Process {
     int rtime;     // remaining time
     int mem;       // amount of memory required
     int16_t addr;  // address of memory allocated
+    // FIXME: Add page table as linkedlist of page structs
     p_state state; // current state of process
 } Process;
 

@@ -51,6 +51,8 @@ void print_process(Process *p, void *mem, mem_strategy strategy,
         case INFINITE: 
             print_running_process(p, sim_time);
             break;
+        
+        // FIXME: Why not use if else branch since FIRST_FIT and PAGED uses the same function?
         case FIRST_FIT:
             print_memory_process(p, mem, sim_time);
             break;
