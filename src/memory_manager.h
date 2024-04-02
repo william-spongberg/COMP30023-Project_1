@@ -34,7 +34,7 @@ typedef struct frame_t{
 // FIXME: Use separate structs for physical memory(frames) and virtual memory(pages)
 typedef struct paged_memory_t{
     int size;
-    int available;
+    int avail_page_count;
     // page_t pages[NUM_PAGES]; FIXME: commented out for now, this should be a linkedlist of pages in the process struct 
     frame_t frames[NUM_PAGES];
 } paged_memory_t;

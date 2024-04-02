@@ -34,7 +34,7 @@ block_memory_t *create_block_memory() {
 paged_memory_t *create_paged_memory() {
     paged_memory_t *mem = (paged_memory_t *)malloc(sizeof(paged_memory_t));
     mem->size = MEM_SIZE;
-    mem->available = MEM_SIZE;
+    mem->avail_page_count = MEM_SIZE;
     for (int i = 0; i < NUM_PAGES; i++) {
         mem->frames[i].is_allocated = false;
     }
@@ -80,13 +80,18 @@ bool first_fit_allocation(Process **p, block_memory_t *mem) {
 }
 
 bool paged_allocation(Process *p, paged_memory_t *mem) {
+    // FIXME: Is this check necessary? Since the process will only call this function if it has not been allocated memory
     // check whether p's pages are allocated in memory
         // if allocated, return true
         // if not allocated
             // if memory available, allocate memory, return true
+                // FIXME: Update page table in process struct and update paged_memory_t struct
             // if memory not available
-                // FIXME: according to task3 description, it should evict the tails of the queue but rather the least recently accessed pages
+                // FIXME: according to task3 description, it should not evict the tails of the queue but rather the least recently accessed pages
+                // FIXME: the queue is not an input to this function, so eviction cannot be done here
+                // suggestion: return false and handle eviction in the process_manager.c
                 // evict tails of queue until enough free frames
+                // FIXME: once the process manager evicts the least recently accessed pages, it should call this function again to allocate memory
                 // allocate memory, return true
     // return false (default)
 
