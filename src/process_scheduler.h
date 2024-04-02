@@ -4,6 +4,6 @@
 #include "queue.h"
 
 // method signatures
-void round_robin_scheduling(Node **queue, Process **p, int *sim_time);
+void round_robin_scheduling(Node **queue, Process **p, p_state *curr_state);
 
 #endif
