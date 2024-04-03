@@ -134,7 +134,7 @@ bool paged_allocation(Process **p, paged_memory_t **mem) {
             tail = get_tail(&(*mem)->lru);
             (*mem)->frames[tail->p->frame_num].is_allocated = false;
             (*mem)->frames_available++;
-            //delete_page(&(*mem)->lru, tail);
+            delete_page(&(*mem)->lru, tail);
         }
         // now do paged fit
         paged_fit(p, mem);
@@ -145,7 +145,7 @@ bool paged_allocation(Process **p, paged_memory_t **mem) {
 
 void create_pages(Process **p) {
     (*p)->pages = (page_t *)malloc(sizeof(page_t) * ((*p)->mem / PAGE_SIZE));
-    for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
+    for (int i = 0; (float)i < (*p)->mem / PAGE_SIZE; i++) {
         (*p)->pages[i].frame_num = -1;
         (*p)->pages[i].is_allocated = false;
     }
@@ -163,7 +163,9 @@ bool virtual_allocation(Process **p, block_memory_t *mem) {
 // implement paged fit strategy
 void paged_fit(Process **p, paged_memory_t **mem) {
     page_t *page = NULL;
-    for (int i = 0; i < ceil((float)(*p)->mem / PAGE_SIZE); i++) {
+    int page_required = ceil((float)(*p)->mem / PAGE_SIZE);
+    // printf("page_required: %d\n", page_required);
+    for (int i = 0; i < page_required; i++) {
         page = &(*p)->pages[i];
         insert_page(&(*mem)->lru, page);
     }
