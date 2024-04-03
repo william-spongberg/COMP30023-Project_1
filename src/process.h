@@ -18,9 +18,10 @@ typedef struct page_t{
 } page_t;
 
 typedef struct Process {
-    int time;      // time process enters CPU
+    int arrival_time; // time process enters CPU
+    int service_time; // time process exits CPU
     char name[8];  // name of process
-    int rtime;     // remaining time
+    int rtime;     // remaining arrival_time
     int mem;       // amount of memory required
     int16_t addr;  // address of memory allocated
     p_state state; // current state of process
@@ -28,7 +29,7 @@ typedef struct Process {
 } Process;
 
 // method signatures
-Process *create_process(int time, char *name, int rtime, int mem,
+Process *create_process(int arrival_time, char *name, int rtime, int mem,
                         p_state state);
 int cmp_process(Process *p1, Process *p2);
 char *get_state(Process *p);
