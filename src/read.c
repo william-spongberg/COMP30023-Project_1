@@ -65,19 +65,19 @@ bool load_processes(Node **queue, char *filename, int sim_time, int quantum) {
         exit(EXIT_FAILURE);
     }
 
-    // format: time process-name remaining-time memory
+    // format: arrival-time process-name remaining-time memory
     Process *p_temp;
     char name[8];
-    int time, rtime;
+    int arrival_time, rtime;
     int mem = 0;
 
     // read file
-    while (fscanf(file, "%d %s %d %d", &time, name, &rtime, &mem) != EOF) {
+    while (fscanf(file, "%d %s %d %d", &arrival_time, name, &rtime, &mem) != EOF) {
         // if arrived since last cycle, set to READY and add to linked list
-        if ((time >= (sim_time - quantum)) && (time <= sim_time)) {
-            p_temp = create_process(time, name, rtime, mem, READY);
+        if ((arrival_time >= (sim_time - quantum)) && (arrival_time <= sim_time)) {
+            p_temp = create_process(arrival_time, name, rtime, mem, READY);
             insert_node(queue, &p_temp);
-        } else if (time > sim_time) {
+        } else if (arrival_time > sim_time) {
             fclose(file);
             return true;
         }

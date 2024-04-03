@@ -1,12 +1,13 @@
 #include "process.h"
 
 // create process
-Process *create_process(int time, char *name, int rtime, int mem,
+Process *create_process(int arrival_time, char *name, int rtime, int mem,
                         p_state state) {
     Process *p = (Process *)malloc(sizeof(Process));
     assert(p != NULL);
 
-    p->time = time;
+    p->arrival_time = arrival_time;
+    p->service_time = rtime;
     strcpy(p->name, name);
     p->rtime = rtime;
     p->mem = mem;
