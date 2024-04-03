@@ -35,4 +35,3 @@ clean:
 
 format:
 	clang-format -style=file -i $(SRC_DIR)/*.c $(SRC_DIR)/*.h
-
