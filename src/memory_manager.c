@@ -1,6 +1,5 @@
 #include "memory_manager.h"
 
-// TODO: return void* for memory, unknown memory struct type
 // create block of memory
 void *create_memory(mem_strategy strategy) {
     switch (strategy) {
@@ -13,6 +12,8 @@ void *create_memory(mem_strategy strategy) {
     case PAGED:
         // create paged memory
         return create_paged_memory();
+    case VIRTUAL:
+        return create_paged_memory(); // Virtual strategy extends paged strategy
     default:
         fprintf(stderr, "Invalid memory strategy\n");
         exit(EXIT_FAILURE);
@@ -30,8 +31,6 @@ block_memory_t *create_block_memory() {
     return mem;
 }
 
-// FIXME: Does this function create the physical memory or the page table for
-// the process? Assume this is physical memory, only the frame number is needed
 paged_memory_t *create_paged_memory() {
     paged_memory_t *mem = (paged_memory_t *)malloc(sizeof(paged_memory_t));
     mem->size = MEM_SIZE;
@@ -53,6 +52,8 @@ bool attempt_allocation(Process **p, void **mem, mem_strategy strategy) {
     case FIRST_FIT:
         return first_fit_allocation(p, *((block_memory_t **)mem));
     case PAGED:
+        return paged_allocation(p, (paged_memory_t **)mem);
+    case VIRTUAL:
         return paged_allocation(p, (paged_memory_t **)mem);
     default:
         fprintf(stderr, "Invalid memory strategy\n");
@@ -106,22 +107,6 @@ int16_t first_fit(block_memory_t *mem, int size) {
 }
 
 bool paged_allocation(Process **p, paged_memory_t **mem) {
-    // FIXME: Is this check necessary? Since the process will only call this
-    // function if it has not been allocated memory check whether p's pages are
-    // allocated in memory if allocated, return true if not allocated if memory
-    // available, allocate memory, return true
-    // FIXME: Update page table in process struct and update paged_memory_t
-    // struct
-    // if memory not available
-    // FIXME: according to task3 description, it should not evict the tails of
-    // the queue but rather the least recently accessed pages
-    // FIXME: the queue is not an input to this function, so eviction cannot be
-    // done here suggestion: return false and handle eviction in the
-    // process_manager.c evict tails of queue until enough free frames
-    // FIXME: once the process manager evicts the least recently accessed pages,
-    // it should call this function again to allocate memory allocate memory,
-    // return true
-    // return false (default)
 
     if ((*p)->pages == NULL) {
         create_pages(p);
@@ -166,10 +151,19 @@ void create_pages(Process **p) {
     }
 }
 
+bool virtual_allocation(Process **p, block_memory_t *mem) {
+    // Check if there are enough memory, if there are call paged_allocation
+    if (mem->available >= (*p)->mem) {
+        return paged_allocation(p, (paged_memory_t **)&mem);
+    } else {
+        return false;
+    }
+}
+
 // implement paged fit strategy
 void paged_fit(Process **p, paged_memory_t **mem) {
     page_t *page = NULL;
-    for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
+    for (int i = 0; i < ceil((float)(*p)->mem / PAGE_SIZE); i++) {
         page = &(*p)->pages[i];
         insert_page(&(*mem)->lru, page);
     }
@@ -249,7 +243,6 @@ void destroy_block_memory(block_memory_t *mem) {
 }
 
 void destroy_paged_memory(paged_memory_t *mem) {
-    // TODO: implement paged memory
     free(mem);
 }
 

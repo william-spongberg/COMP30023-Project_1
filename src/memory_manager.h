@@ -35,6 +35,7 @@ paged_memory_t *create_paged_memory();
 bool attempt_allocation(Process **p, void **mem, mem_strategy strategy);
 bool first_fit_allocation(Process **p, block_memory_t *mem);
 bool paged_allocation(Process **p, paged_memory_t **mem);
+bool virtual_allocation(Process **p, block_memory_t *mem);
 void create_pages(Process **p);
 
 int16_t first_fit(block_memory_t *mem, int size);
