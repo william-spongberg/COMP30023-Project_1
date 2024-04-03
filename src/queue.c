@@ -77,16 +77,6 @@ void delete_node(Node **head, Process *p) {
     }
 }
 
-Node *get_tail(Node *head) {
-    if (head == NULL)
-        return NULL;
-
-    Node *temp = head;
-    while (temp->next != head)
-        temp = temp->next;
-    return temp;
-}
-
 int list_length(Node *head) {
     if (head == NULL)
         return 0;
