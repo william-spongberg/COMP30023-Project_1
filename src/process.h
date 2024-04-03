@@ -1,13 +1,21 @@
 #ifndef process_H
 #define process_H
+
 #include <assert.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define PAGE_SIZE 4   // KB
 
 typedef enum { READY, RUNNING, FINISHED } p_state;
+
+typedef struct page_t{
+    int frame_num;
+    bool is_allocated;
+} page_t;
 
 typedef struct Process {
     int time;      // time process enters CPU
@@ -15,8 +23,8 @@ typedef struct Process {
     int rtime;     // remaining time
     int mem;       // amount of memory required
     int16_t addr;  // address of memory allocated
-    // FIXME: Add page table as linkedlist of page structs
     p_state state; // current state of process
+    page_t *pages; // pages allocated
 } Process;
 
 // method signatures

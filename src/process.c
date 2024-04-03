@@ -12,6 +12,7 @@ Process *create_process(int time, char *name, int rtime, int mem,
     p->mem = mem;
     p->addr = -1;
     p->state = state;
+    p->pages = NULL;
     return p;
 }
 
