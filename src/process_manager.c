@@ -25,7 +25,7 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
         // check if p exists
         if (p != NULL) {
             // allocate memory if not already allocated
-            if (!(attempt_allocation(&p, mem, strategy))) {
+            if (!(attempt_allocation(&p, &mem, strategy))) {
                 continue;
             }
             // run the process
@@ -57,7 +57,7 @@ void print_process(Process *p, void *mem, mem_strategy strategy,
             print_memory_process(p, mem, sim_time);
             break;
         case PAGED:
-            print_memory_process(p, mem, sim_time);
+            print_paged_process(p, mem, sim_time);
             break;
         default:
             fprintf(stderr, "Invalid memory strategy\n");
@@ -68,6 +68,11 @@ void print_process(Process *p, void *mem, mem_strategy strategy,
 void run_process(Process **p, void *mem, p_state *curr_state,
                  mem_strategy strategy, int sim_time) {
     (*p)->state = RUNNING;
+    if (strategy == PAGED) {
+        for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
+            //page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
+        }
+    }
     if (*curr_state != (*p)->state) {
         *curr_state = (*p)->state;
         print_process(*p, mem, strategy, sim_time);
@@ -78,7 +83,7 @@ void run_process(Process **p, void *mem, p_state *curr_state,
 void finish_process(Node **node, Process **p, void **mem,
                     mem_strategy strategy) {
     delete_node(node, *p);
-    free_memory(*mem, strategy, (*p)->addr, (*p)->mem);
+    free_memory(mem, p, strategy, (*p)->addr, (*p)->mem);
     free(*p);
     *p = NULL;
 }

@@ -1,5 +1,6 @@
 #ifndef PROCESS_MANAGER_H
 #define PROCESS_MANAGER_H
+
 #include "process_scheduler.h"
 
 void run_simulation(char *filename, mem_strategy strategy, int quantum);
