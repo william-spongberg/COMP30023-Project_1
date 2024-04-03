@@ -149,7 +149,7 @@ bool paged_allocation(Process **p, paged_memory_t **mem) {
             tail = get_tail(&(*mem)->lru);
             (*mem)->frames[tail->p->frame_num].is_allocated = false;
             (*mem)->frames_available++;
-            delete_page(&(*mem)->lru, tail);
+            //delete_page(&(*mem)->lru, tail);
         }
         // now do paged fit
         paged_fit(p, mem);
