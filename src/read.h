@@ -1,5 +1,6 @@
 #ifndef READ_H
 #define READ_H
+
 #include "queue.h"
 
 typedef enum { INFINITE, FIRST_FIT, PAGED, VIRTUAL } mem_strategy;
