@@ -15,11 +15,6 @@ typedef struct block_memory_t{
     int blocks[MEM_SIZE];
 } block_memory_t;
 
-// TODO: potentially add page_t as array to process struct on creation
-// figure out number of pages by p->mem / PAGE_SIZE
-// or alternatively keep using paged_memory_t as a sort of MMU
-// FIXME: Last accessed time and the process it belongs to.
-
 typedef struct frame_t{
     bool is_allocated;
 } frame_t;
