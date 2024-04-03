@@ -70,7 +70,7 @@ void run_process(Process **p, void *mem, p_state *curr_state,
     (*p)->state = RUNNING;
     if (strategy == PAGED) {
         for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
-            //page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
+            page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
         }
     }
     if (*curr_state != (*p)->state) {
