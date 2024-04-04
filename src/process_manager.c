@@ -17,6 +17,9 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             stats.num_processes++;
             p->state = FINISHED;
             curr_state = p->state;
+            // print eviction message for finished process
+            print_evicted_frames(p, sim_time);
+            
             print_finished_process(p, sim_time, list_length(queue) - 1);
             finish_process(&queue, &p, &mem, strategy, sim_time, &stats);
         }
@@ -105,9 +108,6 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     if (time_overhead > (*stats).max_time_overhead) {
         (*stats).max_time_overhead = time_overhead;
     }
-
-    // Print eviction
-    print_evicted_frames(p, (paged_memory_t *)*mem, sim_time);
 
     // delete node from queue and process from memory
     delete_node(node, *p);

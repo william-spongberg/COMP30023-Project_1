@@ -279,13 +279,13 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
     }
 }
 
-void print_evicted_frames(Process **p, paged_memory_t *mem, int sim_time) {
+void print_evicted_frames(Process *p, int sim_time) {
     printf("%d,EVICTED,evicted-frames=[", sim_time);
-    for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
-        if (i == (*p)->mem / PAGE_SIZE - 1) {
-            printf("%d]\n", (*p)->pages[i].frame_num);
+    for (int i = 0; i < p->mem / PAGE_SIZE; i++) {
+        if (i == p->mem / PAGE_SIZE - 1) {
+            printf("%d]\n", p->pages[i].frame_num);
         } else {
-            printf("%d,", (*p)->pages[i].frame_num);
+            printf("%d,", p->pages[i].frame_num);
         }
     }
 
