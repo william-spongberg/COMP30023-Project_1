@@ -26,6 +26,7 @@ Process *peek(pqueue_t *pq);
 // determine priority of processes to be evicted, the one with the least recent execution time
 int cmp_priority(Process *p1, Process *p2);
 
-// 
+// return if a process is in the queue
+bool in_queue(pqueue_t *pq, Process *p);
 
 #endif

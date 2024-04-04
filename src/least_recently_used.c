@@ -9,6 +9,18 @@ pqueue_t *create_pqueue() {
     return pq;
 }
 
+// Insert a process into the heap
+void insert(pqueue_t *pq, Process *p) {
+    if (pq->size == pq->capacity) {
+        pq->capacity *= 2;
+        pq->processes = (Process **)realloc(pq->processes, pq->capacity * sizeof(Process *));
+    }
+
+    pq->processes[pq->size] = p;
+    pq->size++;
+    heapify(pq);
+}
+
 // sift down a process in the heap
 void sift_down(pqueue_t *pq, int i) {
     int left = 2 * i + 1;
@@ -34,15 +46,10 @@ void heapify(pqueue_t *pq) {
     if (pq == NULL) {
         return;
     }
-    
+
     for (int i = pq->size / 2 - 1; i >= 0; i--) {
         sift_down(pq, i);
     }
-}
-
-// cmp_priority compares the last execution time of two processes
-int cmp_priority(Process *p1, Process *p2) {
-    return p1->last_exec - p2->last_exec;
 }
 
 // Peek
@@ -50,6 +57,7 @@ Process *peek(pqueue_t *pq) {
     if (pq->size == 0) {
         return NULL;
     }
+
     Process *root = pq->processes[0];
     pq->processes[0] = pq->processes[pq->size - 1];
     pq->size--;
@@ -57,3 +65,20 @@ Process *peek(pqueue_t *pq) {
     return root;
 }
 
+// cmp_priority compares the last execution time of two processes
+int cmp_priority(Process *p1, Process *p2) {
+    return p1->last_exec - p2->last_exec;
+}
+
+// return if a process is in the queue
+bool in_queue(pqueue_t *pq, Process *p) {
+    if (pq->size == 0) {
+        return false;
+    }
+    for (int i = 0; i < pq->size; i++) {
+        if (cmp_process(pq->processes[i], p) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
