@@ -106,11 +106,16 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
         (*stats).max_time_overhead = time_overhead;
     }
 
+    // Print eviction
+    print_evicted_frames(p, (paged_memory_t *)*mem, sim_time);
+
     // delete node from queue and process from memory
     delete_node(node, *p);
     free_memory(mem, p, strategy, (*p)->addr, (*p)->mem);
     free(*p);
     *p = NULL;
+
+    // Print eviction
 }
 
 void increment_sim_time(Process **p, int *sim_time, int quantum) {

@@ -52,6 +52,7 @@ void destroy_paged_memory(paged_memory_t *mem);
 
 void print_memory_process(Process *p, block_memory_t *mem, int sim_time);
 void print_paged_process(Process *p, paged_memory_t *mem, int sim_time);
+void print_evicted_frames(Process **p, paged_memory_t *mem, int sim_time);
 int get_block_mem_usage(block_memory_t *mem);
 int get_paged_mem_usage(paged_memory_t *mem);
 
