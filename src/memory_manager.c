@@ -166,17 +166,18 @@ bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue, i
 
 // implement paged fit strategy
 void paged_fit(Process **p, paged_memory_t **mem) {
-    page_t *page = NULL;
+    // page_t *page = NULL;
     int page_required = ceil((float)(*p)->mem / PAGE_SIZE);
-    // printf("page_required: %d\n", page_required);
-    for (int i = 0; i < page_required; i++) {
-        page = &(*p)->pages[i];
-        // insert_page(&(*mem)->lru, page);
-    }
+    printf("page_required: %d\n", page_required);
+    // for (int i = 0; i < page_required; i++) {
+    //     page = &(*p)->pages[i];
+    //     // insert_page(&(*mem)->lru, page);
+    // }
 
     int i = 0;
     int j = 0;
-    while (i < (*mem)->size && j < (*p)->mem / PAGE_SIZE) {
+    while (i < (*mem)->frames_available && j < page_required) {
+        printf("%d\n", i);
         if (!(*mem)->frames[i].is_allocated) {
             (*p)->pages[j].frame_num = i;
             (*p)->pages[j].is_allocated = true;
@@ -271,11 +272,13 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
         fprintf(stderr, "mem is NULL\n");
         exit(EXIT_FAILURE);
     }
+
+    int num_pages = ceil((float)(p->mem) / PAGE_SIZE);
     printf(
         "%d,%s,process-name=%s,remaining-time=%d,mem-usage=%d%%,mem-frames=[",
         sim_time, get_state(p), p->name, p->rtime, get_paged_mem_usage(mem));
-    for (int i = 0; i < p->mem / PAGE_SIZE; i++) {
-        if (i == p->mem / PAGE_SIZE - 1) {
+    for (int i = 0; i < num_pages; i++) {
+        if (i == num_pages - 1) {
             printf("%d]\n", p->pages[i].frame_num);
         } else {
             printf("%d,", p->pages[i].frame_num);
