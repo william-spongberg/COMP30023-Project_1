@@ -168,7 +168,7 @@ bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue, i
 void paged_fit(Process **p, paged_memory_t **mem) {
     // page_t *page = NULL;
     int page_required = ceil((float)(*p)->mem / PAGE_SIZE);
-    printf("page_required: %d\n", page_required);
+    // printf("page_required: %d\n", page_required);
     // for (int i = 0; i < page_required; i++) {
     //     page = &(*p)->pages[i];
     //     // insert_page(&(*mem)->lru, page);
@@ -177,7 +177,7 @@ void paged_fit(Process **p, paged_memory_t **mem) {
     int i = 0;
     int j = 0;
     while (i < (*mem)->frames_available && j < page_required) {
-        printf("%d\n", i);
+        // printf("%d\n", i);
         if (!(*mem)->frames[i].is_allocated) {
             (*p)->pages[j].frame_num = i;
             (*p)->pages[j].is_allocated = true;

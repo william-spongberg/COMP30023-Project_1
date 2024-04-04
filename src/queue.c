@@ -45,6 +45,7 @@ void delete_node(Node **head, Process *p) {
     }
 
     // if deleting single head node
+    // FIXME: delete head node is not working
     if ((cmp_process((*head)->process, p) == 0) && ((*head)->next == *head)) {
         free(*head);
         *head = NULL;

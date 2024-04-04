@@ -22,7 +22,6 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t
                 print_evicted_frames(p, sim_time);
             }
             
-
             print_finished_process(p, sim_time, list_length(queue) - 1);
             finish_process(&queue, &p, &mem, strategy, sim_time, &stats);
         }
@@ -116,14 +115,15 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     if (time_overhead > (*stats).max_time_overhead) {
         (*stats).max_time_overhead = time_overhead;
     }
-
+    if (strategy == PAGED || strategy == VIRTUAL) {
+        free_paged_memory((paged_memory_t **)mem, *p);
+    }
     // delete node from queue and process from memory
     delete_node(node, *p);
+    
     free_memory(mem, p, strategy, (*p)->addr, (*p)->mem);
     free(*p);
     *p = NULL;
-
-    // Print eviction
 }
 
 void increment_sim_time(Process **p, int *sim_time, int quantum) {
