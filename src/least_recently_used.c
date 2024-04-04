@@ -1,91 +1,59 @@
 #include "least_recently_used.h"
 
-// new linked list
-Page *create_page(page_t *p) {
-    Page *page = (Page *)malloc(sizeof(Page));
-    assert(page != NULL);
-
-    page->p = p;
-    page->next = NULL;
-    return page;
+// Create a new priority queue
+pqueue_t *create_pqueue() {
+    pqueue_t *pq = (pqueue_t *)malloc(sizeof(pqueue_t));
+    pq->processes = (Process **)malloc(INIT_CAP * sizeof(Process *));
+    pq->size = 0;
+    pq->capacity = INIT_CAP;
+    return pq;
 }
 
-// insert page
-void insert_page(Page **head, page_t *p) {
-    Page *page = create_page(p);
-    if (*head == NULL) {
-        *head = page;
-    } else {
-        Page *temp = *head;
-        // insert at tail, least recently used
-        while (temp->next != NULL)
-            temp = temp->next;
-        temp->next = page;
+// sift down a process in the heap
+void sift_down(pqueue_t *pq, int i) {
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    int smallest = i;
+
+    if (left < pq->size && cmp_priority(pq->processes[left], pq->processes[smallest]) < 0) {
+        smallest = left;
+    }
+    if (right < pq->size && cmp_priority(pq->processes[right], pq->processes[smallest]) < 0) {
+        smallest = right;
+    }
+    if (smallest != i) {
+        Process *temp = pq->processes[i];
+        pq->processes[i] = pq->processes[smallest];
+        pq->processes[smallest] = temp;
+        sift_down(pq, smallest); // recursively sift down
     }
 }
 
-Page *get_page(Page **head, page_t *p) {
-    Page *temp = *head;
-    while (temp != NULL) {
-        if (cmp_page(temp->p, p))
-            return temp;
-        temp = temp->next;
-    }
-    return NULL;
-}
-
-// if page is used, move to head
-void page_used(Page **head, page_t *p) {
-    Page *page = get_page(head, p);
-    if (page == NULL)
-        return;
-    // if page is head, do nothing
-    if (cmp_page((*head)->p, p))
-        return;
-    // if page is tail, move to head
-    if (page->next == NULL) {
-        page->next = *head;
-        *head = page;
+// heapify a random array
+void heapify(pqueue_t *pq) {
+    if (pq == NULL) {
         return;
     }
-    // if page is in middle, move to head
-    Page *temp = *head;
-    while (temp->next != page)
-        temp = temp->next;
-    temp->next = page->next;
-    page->next = *head;
-    *head = page;
-}
-
-Page *get_tail(Page **head) {
-    Page *temp = *head;
-    while (temp->next != NULL)
-        temp = temp->next;
-    return temp;
-}
-
-void delete_page(Page **head, Page *page) {
-    Page *temp = *head;
-    if (cmp_page(temp->p, page->p)) {
-        *head = temp->next;
-        free(temp);
-        return;
-    }
-    while (temp->next != NULL) {
-        if (cmp_page(temp->next->p, page->p)) {
-            Page *del = temp->next;
-            temp->next = temp->next->next;
-            free(del);
-            return;
-        }
-        temp = temp->next;
+    
+    for (int i = pq->size / 2 - 1; i >= 0; i--) {
+        sift_down(pq, i);
     }
 }
 
-bool cmp_page(page_t *p1, page_t *p2) {
-    if (p1 == NULL || p2 == NULL)
-        return false;
-    if (p1->frame_num == -1)
-        return false;
-    return p1->frame_num == p2->frame_num;
+// cmp_priority compares the last execution time of two processes
+int cmp_priority(Process *p1, Process *p2) {
+    return p1->last_exec - p2->last_exec;
 }
+
+// Peek
+Process *peek(pqueue_t *pq) {
+    if (pq->size == 0) {
+        return NULL;
+    }
+    Process *root = pq->processes[0];
+    pq->processes[0] = pq->processes[pq->size - 1];
+    pq->size--;
+    sift_down(pq, 0);
+    return root;
+}
+

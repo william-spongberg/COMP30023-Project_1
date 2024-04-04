@@ -13,6 +13,7 @@ Process *create_process(int arrival_time, char *name, int rtime, int mem,
     p->mem = mem;
     p->addr = -1;
     p->state = state;
+    p->last_exec = -1; // Not yet executed
     p->pages = NULL;
     return p;
 }

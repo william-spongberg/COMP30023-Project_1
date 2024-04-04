@@ -8,6 +8,12 @@
 #define MEM_SIZE 2048 // KB
 #define NUM_PAGES 512 // 2048 / 4
 
+// Refactor page from least_recently_used.h, improve cohesion
+typedef struct Page {
+    page_t *p;
+    struct Page *next;
+} Page;
+
 // infinite memory struct
 typedef struct block_memory_t{
     int size;
@@ -23,7 +29,6 @@ typedef struct frame_t{
 typedef struct paged_memory_t{
     int size;
     int frames_available;
-    Page *lru;
     frame_t frames[NUM_PAGES];
 } paged_memory_t;
 
@@ -32,10 +37,10 @@ void *create_memory(mem_strategy strategy);
 block_memory_t *create_block_memory();
 paged_memory_t *create_paged_memory();
 
-bool attempt_allocation(Process **p, void **mem, mem_strategy strategy);
+bool attempt_allocation(Process **p, void **mem, mem_strategy strategy, pqueue_t *lru_queue, int sim_time);
 bool first_fit_allocation(Process **p, block_memory_t *mem);
-bool paged_allocation(Process **p, paged_memory_t **mem);
-bool virtual_allocation(Process **p, block_memory_t *mem);
+bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue, int sim_time);
+bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue, int sim_time);
 void create_pages(Process **p);
 
 int16_t first_fit(block_memory_t *mem, int size);

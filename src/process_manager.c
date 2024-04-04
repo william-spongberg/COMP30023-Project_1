@@ -1,6 +1,6 @@
 #include "process_manager.h"
 
-void run_simulation(char *filename, mem_strategy strategy, int quantum) {
+void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t *lru_queue) {
     Node *queue = NULL;
     Process *p = NULL;
     p_state curr_state = READY;
@@ -17,9 +17,12 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             stats.num_processes++;
             p->state = FINISHED;
             curr_state = p->state;
-            // print eviction message for finished process
-            print_evicted_frames(p, sim_time);
+            // print eviction message for finished process only for paged and virtual
+            if (strategy == PAGED || strategy == VIRTUAL) {
+                print_evicted_frames(p, sim_time);
+            }
             
+
             print_finished_process(p, sim_time, list_length(queue) - 1);
             finish_process(&queue, &p, &mem, strategy, sim_time, &stats);
         }
@@ -30,11 +33,11 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
         // check if p exists
         if (p != NULL) {
             // allocate memory if not already allocated
-            if (!(attempt_allocation(&p, &mem, strategy))) {
+            if (!(attempt_allocation(&p, &mem, strategy, lru_queue, sim_time))) {
                 continue;
             }
             // run the process
-            run_process(&p, mem, &curr_state, strategy, sim_time);
+            run_process(&p, mem, &curr_state, strategy, sim_time, lru_queue);
         }
 
         if (load_processes(&queue, filename, sim_time, quantum) ||
@@ -80,16 +83,21 @@ void print_process(Process *p, void *mem, mem_strategy strategy, int sim_time) {
 }
 
 void run_process(Process **p, void *mem, p_state *curr_state,
-                 mem_strategy strategy, int sim_time) {
+                 mem_strategy strategy, int sim_time, pqueue_t *lru_queue) {
     // set to running
     (*p)->state = RUNNING;
 
+    // Record last execution time
+    (*p)->last_exec = sim_time;
+
+    // TODO: find a place to update priority queue of least recently used process
+    heapify(lru_queue);
     // update memory usage
-    if (strategy == PAGED) {
-        for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
-            page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
-        }
-    }
+    // if (strategy == PAGED) {
+    //     for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
+    //         page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
+    //     }
+    // }
 
     // if switched states, print state
     if (*curr_state != (*p)->state) {
