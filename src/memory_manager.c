@@ -127,14 +127,16 @@ bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue, in
         paged_fit(p, mem);
         return true;
     } else {
+        int pages_required = ceil((float)(*p)->mem / PAGE_SIZE);
         // evict root of lru queue, if not enough, reheapify and evict root again
-        while ((*mem)->frames_available < (*p)->mem / PAGE_SIZE) {
+        while ((*mem)->frames_available < pages_required) {
             Process *process_to_evict = peek(lru_queue);
             page_t *frames_to_evict = process_to_evict->pages;
             // print evicted frames
             print_evicted_frames(*p, sim_time);
             // Actual eviction
-            for (int i = 0; i < process_to_evict->mem / PAGE_SIZE; i++) {
+            int pages_to_evict = ceil((float)process_to_evict->mem / PAGE_SIZE);
+            for (int i = 0; i < pages_to_evict; i++) {
                 (*mem)->frames[frames_to_evict[i].frame_num].is_allocated = false;
                 (*mem)->frames_available++;
             }
