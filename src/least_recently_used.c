@@ -21,8 +21,9 @@ void insert(pqueue_t *pq, Process *p) {
     heapify(pq);
 }
 
-// sift down a process in the heap
-void sift_down(pqueue_t *pq, int i) {
+// sift down current root in the heap
+void sift_down(pqueue_t *pq) {
+    int i = 0;
     int left = 2 * i + 1;
     int right = 2 * i + 2;
     int smallest = i;
@@ -30,14 +31,16 @@ void sift_down(pqueue_t *pq, int i) {
     if (left < pq->size && cmp_priority(pq->processes[left], pq->processes[smallest]) < 0) {
         smallest = left;
     }
+
     if (right < pq->size && cmp_priority(pq->processes[right], pq->processes[smallest]) < 0) {
         smallest = right;
     }
+
     if (smallest != i) {
         Process *temp = pq->processes[i];
         pq->processes[i] = pq->processes[smallest];
         pq->processes[smallest] = temp;
-        sift_down(pq, smallest); // recursively sift down
+        sift_down(pq);
     }
 }
 
@@ -47,9 +50,7 @@ void heapify(pqueue_t *pq) {
         return;
     }
 
-    for (int i = pq->size / 2 - 1; i >= 0; i--) {
-        sift_down(pq, i);
-    }
+    sift_down(pq);
 }
 
 // Peek
@@ -61,7 +62,7 @@ Process *peek(pqueue_t *pq) {
     Process *root = pq->processes[0];
     pq->processes[0] = pq->processes[pq->size - 1];
     pq->size--;
-    sift_down(pq, 0);
+    heapify(pq);
     return root;
 }
 

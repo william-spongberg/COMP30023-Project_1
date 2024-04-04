@@ -94,7 +94,6 @@ void run_process(Process **p, void *mem, p_state *curr_state,
     } else {
         heapify(lru_queue);
     }
-    heapify(lru_queue);
     // update memory usage
     // if (strategy == PAGED) {
     //     for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
