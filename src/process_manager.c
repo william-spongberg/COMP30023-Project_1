@@ -1,6 +1,6 @@
 #include "process_manager.h"
 
-void run_simulation(char *filename, mem_strategy strategy, int quantum) {
+void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t *lru_queue) {
     Node *queue = NULL;
     Process *p = NULL;
     p_state curr_state = READY;
@@ -17,8 +17,10 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             stats.num_processes++;
             p->state = FINISHED;
             curr_state = p->state;
-            // print eviction message for finished process
-            print_evicted_frames(p, sim_time);
+            // print eviction message for finished process only for paged and virtual
+            if (strategy == PAGED || strategy == VIRTUAL) {
+                print_evicted_frames(p, sim_time);
+            }
             
             print_finished_process(p, sim_time, list_length(queue) - 1);
             finish_process(&queue, &p, &mem, strategy, sim_time, &stats);
@@ -30,11 +32,11 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
         // check if p exists
         if (p != NULL) {
             // allocate memory if not already allocated
-            if (!(attempt_allocation(&p, &mem, strategy))) {
+            if (!(attempt_allocation(&p, &mem, strategy, lru_queue, sim_time))) {
                 continue;
             }
             // run the process
-            run_process(&p, mem, &curr_state, strategy, sim_time);
+            run_process(&p, mem, &curr_state, strategy, sim_time, lru_queue);
         }
 
         if (load_processes(&queue, filename, sim_time, quantum) ||
@@ -80,16 +82,24 @@ void print_process(Process *p, void *mem, mem_strategy strategy, int sim_time) {
 }
 
 void run_process(Process **p, void *mem, p_state *curr_state,
-                 mem_strategy strategy, int sim_time) {
+                 mem_strategy strategy, int sim_time, pqueue_t *lru_queue) {
     // set to running
     (*p)->state = RUNNING;
 
-    // update memory usage
-    if (strategy == PAGED) {
-        for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
-            page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
-        }
+    // Record last execution time
+    (*p)->last_exec = sim_time;
+    // If process is not in queue insert, else heapify the queue
+    if (!in_queue(lru_queue, *p)) {
+        insert(lru_queue, *p);
+    } else {
+        heapify(lru_queue);
     }
+    // update memory usage
+    // if (strategy == PAGED) {
+    //     for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
+    //         page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
+    //     }
+    // }
 
     // if switched states, print state
     if (*curr_state != (*p)->state) {
@@ -108,14 +118,15 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     if (time_overhead > (*stats).max_time_overhead) {
         (*stats).max_time_overhead = time_overhead;
     }
-
+    if (strategy == PAGED || strategy == VIRTUAL) {
+        free_paged_memory((paged_memory_t **)mem, *p);
+    }
     // delete node from queue and process from memory
     delete_node(node, *p);
+
     free_memory(mem, p, strategy, (*p)->addr, (*p)->mem);
     free(*p);
     *p = NULL;
-
-    // Print eviction
 }
 
 void increment_sim_time(Process **p, int *sim_time, int quantum) {

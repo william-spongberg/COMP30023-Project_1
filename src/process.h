@@ -23,9 +23,10 @@ typedef struct Process {
     char name[8];  // name of process
     int rtime;     // remaining arrival_time
     int mem;       // amount of memory required
+    int last_exec; // last time process was executed
     int16_t addr;  // address of memory allocated
     p_state state; // current state of process
-    page_t *pages; // pages allocated
+    page_t *pages; // pages allocated as array of pages
 } Process;
 
 // method signatures

@@ -38,11 +38,10 @@ paged_memory_t *create_paged_memory() {
     for (int i = 0; i < mem->frames_available; i++) {
         mem->frames[i].is_allocated = false;
     }
-    mem->lru = NULL;
     return mem;
 }
 
-bool attempt_allocation(Process **p, void **mem, mem_strategy strategy) {
+bool attempt_allocation(Process **p, void **mem, mem_strategy strategy, pqueue_t *lru_queue, int sim_time) {
     if (mem == NULL)
         return true;
     switch (strategy) {
@@ -52,9 +51,9 @@ bool attempt_allocation(Process **p, void **mem, mem_strategy strategy) {
     case FIRST_FIT:
         return first_fit_allocation(p, *((block_memory_t **)mem));
     case PAGED:
-        return paged_allocation(p, (paged_memory_t **)mem);
+        return paged_allocation(p, (paged_memory_t **)mem, lru_queue, sim_time) ;
     case VIRTUAL:
-        return paged_allocation(p, (paged_memory_t **)mem);
+        return paged_allocation(p, (paged_memory_t **)mem, lru_queue, sim_time);
     default:
         fprintf(stderr, "Invalid memory strategy\n");
         exit(EXIT_FAILURE);
@@ -106,7 +105,7 @@ int16_t first_fit(block_memory_t *mem, int size) {
     return -1;
 }
 
-bool paged_allocation(Process **p, paged_memory_t **mem) {
+bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue, int sim_time) {
 
     if ((*p)->pages == NULL) {
         create_pages(p);
@@ -128,14 +127,21 @@ bool paged_allocation(Process **p, paged_memory_t **mem) {
         paged_fit(p, mem);
         return true;
     } else {
-        // evict least recently used pages until enough free frames
-        Page *tail = NULL;
-        while ((*mem)->frames_available < (*p)->mem / PAGE_SIZE) {
-            tail = get_tail(&(*mem)->lru);
-            (*mem)->frames[tail->p->frame_num].is_allocated = false;
-            (*mem)->frames_available++;
-            delete_page(&(*mem)->lru, tail);
+        int pages_required = ceil((float)(*p)->mem / PAGE_SIZE);
+        // evict root of lru queue, if not enough, reheapify and evict root again
+        while ((*mem)->frames_available < pages_required) {
+            Process *process_to_evict = peek(lru_queue);
+            page_t *frames_to_evict = process_to_evict->pages;
+            // print evicted frames
+            print_evicted_frames(process_to_evict, sim_time);
+            // Actual eviction
+            int pages_to_evict = ceil((float)process_to_evict->mem / PAGE_SIZE);
+            for (int i = 0; i < pages_to_evict; i++) {
+                (*mem)->frames[frames_to_evict[i].frame_num].is_allocated = false;
+                (*mem)->frames_available++;
+            }
         }
+
         // now do paged fit
         paged_fit(p, mem);
         return true;
@@ -151,10 +157,10 @@ void create_pages(Process **p) {
     }
 }
 
-bool virtual_allocation(Process **p, block_memory_t *mem) {
+bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue, int sim_time) {
     // Check if there are enough memory, if there are call paged_allocation
-    if (mem->available >= (*p)->mem) {
-        return paged_allocation(p, (paged_memory_t **)&mem);
+    if ( mem->frames_available >= (*p)->mem / PAGE_SIZE) {
+        return paged_allocation(p, (paged_memory_t **)&mem, lru_queue, sim_time);
     } else {
         return false;
     }
@@ -162,17 +168,18 @@ bool virtual_allocation(Process **p, block_memory_t *mem) {
 
 // implement paged fit strategy
 void paged_fit(Process **p, paged_memory_t **mem) {
-    page_t *page = NULL;
+    // page_t *page = NULL;
     int page_required = ceil((float)(*p)->mem / PAGE_SIZE);
     // printf("page_required: %d\n", page_required);
-    for (int i = 0; i < page_required; i++) {
-        page = &(*p)->pages[i];
-        insert_page(&(*mem)->lru, page);
-    }
+    // for (int i = 0; i < page_required; i++) {
+    //     page = &(*p)->pages[i];
+    //     // insert_page(&(*mem)->lru, page);
+    // }
 
     int i = 0;
     int j = 0;
-    while (i < (*mem)->size && j < (*p)->mem / PAGE_SIZE) {
+    while (i < MEM_SIZE && j < page_required) {
+        // printf("%d\n", i);
         if (!(*mem)->frames[i].is_allocated) {
             (*p)->pages[j].frame_num = i;
             (*p)->pages[j].is_allocated = true;
@@ -216,7 +223,7 @@ void free_paged_memory(paged_memory_t **mem, Process *p) {
     for (int i = 0; i < p->mem / PAGE_SIZE; i++) {
         (*mem)->frames[p->pages[i].frame_num].is_allocated = false;
         (*mem)->frames_available++;
-        delete_page(&(*mem)->lru, get_page(&(*mem)->lru, &p->pages[i]));
+        // delete_page(&(*mem)->lru, get_page(&(*mem)->lru, &p->pages[i]));
     }
 }
 
@@ -267,11 +274,13 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
         fprintf(stderr, "mem is NULL\n");
         exit(EXIT_FAILURE);
     }
+
+    int num_pages = ceil((float)(p->mem) / PAGE_SIZE);
     printf(
         "%d,%s,process-name=%s,remaining-time=%d,mem-usage=%d%%,mem-frames=[",
         sim_time, get_state(p), p->name, p->rtime, get_paged_mem_usage(mem));
-    for (int i = 0; i < p->mem / PAGE_SIZE; i++) {
-        if (i == p->mem / PAGE_SIZE - 1) {
+    for (int i = 0; i < num_pages; i++) {
+        if (i == num_pages - 1) {
             printf("%d]\n", p->pages[i].frame_num);
         } else {
             printf("%d,", p->pages[i].frame_num);
@@ -280,9 +289,11 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
 }
 
 void print_evicted_frames(Process *p, int sim_time) {
+    int pages_to_evict = ceil((float)p->mem / PAGE_SIZE);
+    // printf("pages to evict: %d\n", pages_to_evict);
     printf("%d,EVICTED,evicted-frames=[", sim_time);
-    for (int i = 0; i < p->mem / PAGE_SIZE; i++) {
-        if (i == p->mem / PAGE_SIZE - 1) {
+    for (int i = 0; i < pages_to_evict; i++) {
+        if (i == pages_to_evict - 1) {
             printf("%d]\n", p->pages[i].frame_num);
         } else {
             printf("%d,", p->pages[i].frame_num);
@@ -298,5 +309,5 @@ int get_block_mem_usage(block_memory_t *mem) {
 int get_paged_mem_usage(paged_memory_t *mem) {
     return ceil(
         100 -
-        (((float)mem->frames_available * PAGE_SIZE / (float)mem->size) * 100));
+        (((float)mem->frames_available * PAGE_SIZE / (float)MEM_SIZE) * 100));
 }

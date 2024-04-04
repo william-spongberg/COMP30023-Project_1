@@ -7,11 +7,13 @@ int main(int argc, char *argv[]) {
     mem_strategy strategy;
     int quantum = 0;
 
+    pqueue_t *lru_queue = create_pqueue();
+
     // parse command line arguments
     parse_command_line(argc, argv, &filename, &strategy, &quantum);
 
     // run simulation
-    run_simulation(filename, strategy, quantum);
+    run_simulation(filename, strategy, quantum, lru_queue);
 
     return 0;
 }
