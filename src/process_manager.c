@@ -9,6 +9,7 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t
     stats_t stats = new_stats();
 
     // while processes are being loaded or there are still processes to run
+    // FIXME: gdb shows that P1 is loaded back into the queue after it has finished
     while (load_processes(&queue, filename, sim_time, quantum) ||
            (queue != NULL)) {
 
@@ -21,7 +22,6 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t
             if (strategy == PAGED || strategy == VIRTUAL) {
                 print_evicted_frames(p, sim_time);
             }
-            
             print_finished_process(p, sim_time, list_length(queue) - 1);
             finish_process(&queue, &p, &mem, strategy, sim_time, &stats);
         }
@@ -94,12 +94,6 @@ void run_process(Process **p, void *mem, p_state *curr_state,
     } else {
         heapify(lru_queue);
     }
-    // update memory usage
-    // if (strategy == PAGED) {
-    //     for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
-    //         page_used(&((paged_memory_t *)mem)->lru, &(*p)->pages[i]);
-    //     }
-    // }
 
     // if switched states, print state
     if (*curr_state != (*p)->state) {
@@ -117,9 +111,6 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     (*stats).total_time_overhead += time_overhead;
     if (time_overhead > (*stats).max_time_overhead) {
         (*stats).max_time_overhead = time_overhead;
-    }
-    if (strategy == PAGED || strategy == VIRTUAL) {
-        free_paged_memory((paged_memory_t **)mem, *p);
     }
     // delete node from queue and process from memory
     delete_node(node, *p);
