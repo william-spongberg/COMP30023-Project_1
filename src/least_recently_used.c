@@ -26,40 +26,36 @@ void insert(pqueue_t *pq, Process *p) {
 }
 
 // sift down current root in the heap
-void sift_down(pqueue_t *pq) {
-    int i = 0;
+void sift_down(pqueue_t *pq, int i) {
+    int min = i;
     int left = 2 * i + 1;
     int right = 2 * i + 2;
-    int smallest = i;
 
-    if (pq->size <= 1) {
-        return;
+    if (left < pq->size && cmp_priority(pq->processes[left], pq->processes[min]) < 0) {
+        min = left;
     }
 
-    if (left < pq->size &&
-        cmp_priority(pq->processes[left], pq->processes[smallest]) < 0) {
-        smallest = left;
+    if (right < pq->size && cmp_priority(pq->processes[right], pq->processes[min]) < 0) {
+        min = right;
     }
 
-    if (right < pq->size &&
-        cmp_priority(pq->processes[right], pq->processes[smallest]) < 0) {
-        smallest = right;
-    }
-
-    if (smallest != i) {
+    if (min != i) {
         Process *temp = pq->processes[i];
-        pq->processes[i] = pq->processes[smallest];
-        pq->processes[smallest] = temp;
-        sift_down(pq);
+        pq->processes[i] = pq->processes[min];
+        pq->processes[min] = temp;
+        sift_down(pq, min);
     }
 }
 
 // heapify a random array
 void heapify(pqueue_t *pq) {
-    if (pq == NULL) {
+    // print out all process name in the heap
+    if (pq == NULL || pq->size == 0) {
         return;
     }
-    sift_down(pq);
+    for (int i = (pq->size / 2) - 1; i >= 0; i--) {
+        sift_down(pq, i);
+    }
 }
 
 // Peek
@@ -77,7 +73,10 @@ Process *peek(pqueue_t *pq) {
 
 // cmp_priority compares the last execution time of two processes
 int cmp_priority(Process *p1, Process *p2) {
-    return p1->last_exec - p2->last_exec;
+    if (p1 == NULL || p2 == NULL) {
+        return 0;
+    }
+    return (p1->last_exec) - (p2->last_exec);
 }
 
 // return if a process is in the queue

@@ -134,7 +134,6 @@ bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
         // again
         while ((*mem)->frames_available < pages_required) {
             Process *process_to_evict = peek(lru_queue);
-            page_t *frames_to_evict = process_to_evict->pages;
 
             // print evicted frames
             print_evicted_frames(process_to_evict, sim_time);
@@ -143,7 +142,7 @@ bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
             int pages_to_evict = ceil((float)process_to_evict->mem / PAGE_SIZE);
             for (int i = 0; i < pages_to_evict; i++) {
                 process_to_evict->pages[i].is_allocated = false;
-                (*mem)->frames[frames_to_evict[i].frame_num].is_allocated =
+                (*mem)->frames[process_to_evict->pages[i].frame_num].is_allocated =
                     false;
                 (*mem)->frames_available++;
             }
@@ -179,15 +178,10 @@ bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue,
 void paged_fit(Process **p, paged_memory_t **mem) {
     // page_t *page = NULL;
     int page_required = ceil((float)(*p)->mem / PAGE_SIZE);
-    // printf("page_required: %d\n", page_required);
-    // for (int i = 0; i < page_required; i++) {
-    //     page = &(*p)->pages[i];
-    //     // insert_page(&(*mem)->lru, page);
-    // }
 
     int i = 0;
     int j = 0;
-    while (i < MEM_SIZE && j < page_required) {
+    while (i < MEM_SIZE/PAGE_SIZE && j < page_required) {
         if (!(*mem)->frames[i].is_allocated) {
             (*p)->pages[j].frame_num = i;
             (*p)->pages[j].is_allocated = true;
@@ -297,7 +291,6 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
 
 void print_evicted_frames(Process *p, int sim_time) {
     int pages_to_evict = ceil((float)p->mem / PAGE_SIZE);
-    // printf("pages to evict: %d\n", pages_to_evict);
     printf("%d,EVICTED,evicted-frames=[", sim_time);
     for (int i = 0; i < pages_to_evict; i++) {
         if (i == pages_to_evict - 1) {

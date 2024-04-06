@@ -95,12 +95,10 @@ void run_process(Process **p, void *mem, p_state *curr_state,
     // Record last execution time
     (*p)->last_exec = sim_time;
     // If process is not in queue insert, else heapify the queue
-    if (lru_queue->size > 0) {
-        if (!in_queue(lru_queue, *p)) {
-            insert(lru_queue, *p);
-        } else {
-            heapify(lru_queue);
-        }
+    if (!in_queue(lru_queue, *p)) {
+        insert(lru_queue, *p);
+    } else {
+        heapify(lru_queue);
     }
 
     // if switched states, print state
