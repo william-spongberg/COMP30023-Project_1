@@ -15,18 +15,18 @@ typedef struct Page {
 } Page;
 
 // infinite memory struct
-typedef struct block_memory_t{
+typedef struct block_memory_t {
     int size;
     int available;
     int blocks[MEM_SIZE];
 } block_memory_t;
 
-typedef struct frame_t{
+typedef struct frame_t {
     bool is_allocated;
 } frame_t;
 
 // paged memory struct
-typedef struct paged_memory_t{
+typedef struct paged_memory_t {
     int size;
     int frames_available;
     frame_t frames[NUM_PAGES];
@@ -37,17 +37,21 @@ void *create_memory(mem_strategy strategy);
 block_memory_t *create_block_memory();
 paged_memory_t *create_paged_memory();
 
-bool attempt_allocation(Process **p, void **mem, mem_strategy strategy, pqueue_t *lru_queue, int sim_time);
+bool attempt_allocation(Process **p, void **mem, mem_strategy strategy,
+                        pqueue_t *lru_queue, int sim_time);
 bool first_fit_allocation(Process **p, block_memory_t *mem);
-bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue, int sim_time);
-bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue, int sim_time);
+bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
+                      int sim_time);
+bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue,
+                        int sim_time);
 void create_pages(Process **p);
 
 int16_t first_fit(block_memory_t *mem, int size);
 void paged_fit(Process **p, paged_memory_t **mem);
 int16_t virtual_fit(block_memory_t *mem, int size);
 
-void free_memory(void **mem, Process **p, mem_strategy strategy, int start, int size);
+void free_memory(void **mem, Process **p, mem_strategy strategy, int start,
+                 int size);
 void free_block_memory(block_memory_t *mem, int start, int size);
 void free_paged_memory(paged_memory_t **mem, Process *p);
 
