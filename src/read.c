@@ -57,12 +57,19 @@ int set_quantum(char *quantum) {
     exit(EXIT_FAILURE);
 }
 
-bool load_processes(Node **queue, char *filename, int sim_time, int quantum) {
-    // open file
+FILE *open_file(char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         fprintf(stderr, "Error opening file\n");
         exit(EXIT_FAILURE);
+    }
+    return file;
+}
+
+bool load_processes(Node **queue, FILE **file, int sim_time, int quantum) {
+    // if file closes, read through already
+    if (*file == NULL) {
+        return false;
     }
 
     // format: arrival-time process-name remaining-time memory
@@ -72,17 +79,21 @@ bool load_processes(Node **queue, char *filename, int sim_time, int quantum) {
     int mem = 0;
 
     // read file
-    while (fscanf(file, "%d %s %d %d", &arrival_time, name, &rtime, &mem) != EOF) {
+    while (fscanf(*file, "%d %s %d %d", &arrival_time, name, &rtime, &mem) !=
+           EOF) {
         // if arrived since last cycle, set to READY and add to linked list
-        if ((arrival_time >= (sim_time - quantum)) && (arrival_time <= sim_time)) {
+        if ((arrival_time >= (sim_time - quantum)) &&
+            (arrival_time <= sim_time)) {
             p_temp = create_process(arrival_time, name, rtime, mem, READY);
             insert_node(queue, &p_temp);
         } else if (arrival_time > sim_time) {
-            fclose(file);
+            fclose(*file);
+            *file = NULL;
             return true;
         }
     }
     // if reached EOF and no nodes added -> no processes remaining
-    fclose(file);
+    fclose(*file);
+    *file = NULL;
     return false;
 }

@@ -10,6 +10,7 @@ void parse_command_line(int argc, char *argv[], char **filename,
                         mem_strategy *strategy, int *quantum);
 mem_strategy set_memory_strategy(char *mem_strategy);
 int set_quantum(char *quantum);
-bool load_processes(Node **queue, char *filename, int sim_time, int quantum);
+FILE *open_file(char *filename);
+bool load_processes(Node **queue, FILE **file, int sim_time, int quantum);
 
 #endif
