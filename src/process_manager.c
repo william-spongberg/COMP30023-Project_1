@@ -1,16 +1,19 @@
 #include "process_manager.h"
 
-void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t *lru_queue) {
+void run_simulation(char *filename, mem_strategy strategy, int quantum) {
     Node *queue = NULL;
     Process *p = NULL;
     p_state curr_state = READY;
     void *mem = create_memory(strategy);
     int sim_time = 0;
     stats_t stats = new_stats();
+    pqueue_t *lru_queue = create_pqueue();
+    FILE *file = open_file(filename);
 
     // while processes are being loaded or there are still processes to run
-    // FIXME: gdb shows that P1 is loaded back into the queue after it has finished
-    while (load_processes(&queue, filename, sim_time, quantum) ||
+    // FIXME: gdb shows that P1 is loaded back into the queue after it has
+    // finished
+    while (load_processes(&queue, &file, sim_time, quantum) ||
            (queue != NULL)) {
 
         // if process has completed its execution, delete it
@@ -18,12 +21,13 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t
             stats.num_processes++;
             p->state = FINISHED;
             curr_state = p->state;
-            // print eviction message for finished process only for paged and virtual
+            // print eviction message for finished process only for paged and
+            // virtual
             if (strategy == PAGED || strategy == VIRTUAL) {
                 print_evicted_frames(p, sim_time);
             }
             print_finished_process(p, sim_time, list_length(queue) - 1);
-            finish_process(&queue, &p, &mem, strategy, sim_time, &stats);
+            finish_process(&queue, &p, &mem, strategy, lru_queue, sim_time, &stats);
         }
 
         // update state of current process, state of newly allocated process
@@ -32,21 +36,22 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t
         // check if p exists
         if (p != NULL) {
             // allocate memory if not already allocated
-            if (!(attempt_allocation(&p, &mem, strategy, lru_queue, sim_time))) {
+            if (!(attempt_allocation(&p, &mem, strategy, lru_queue,
+                                     sim_time))) {
                 continue;
             }
             // run the process
             run_process(&p, mem, &curr_state, strategy, sim_time, lru_queue);
         }
 
-        if (load_processes(&queue, filename, sim_time, quantum) ||
-            (queue != NULL))
+        if (load_processes(&queue, &file, sim_time, quantum) || (queue != NULL))
             // increment simulation arrival_time
             increment_sim_time(&p, &sim_time, quantum);
     }
 
     // calculate statistics
-    int avg_turnaround_time = round((double)stats.total_turnaround_time / stats.num_processes);
+    int avg_turnaround_time =
+        round((double)stats.total_turnaround_time / stats.num_processes);
     float avg_time_overhead = stats.total_time_overhead / stats.num_processes;
     printf("Turnaround time %d\n", avg_turnaround_time);
     printf("Time overhead %.2f %.2f\n", stats.max_time_overhead,
@@ -55,6 +60,7 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum, pqueue_t
 
     // free memory
     destroy_memory(mem, strategy);
+    free_pqueue(lru_queue);
 }
 
 bool process_completed(Process *p) {
@@ -89,10 +95,12 @@ void run_process(Process **p, void *mem, p_state *curr_state,
     // Record last execution time
     (*p)->last_exec = sim_time;
     // If process is not in queue insert, else heapify the queue
-    if (!in_queue(lru_queue, *p)) {
-        insert(lru_queue, *p);
-    } else {
-        heapify(lru_queue);
+    if (lru_queue->size > 0) {
+        if (!in_queue(lru_queue, *p)) {
+            insert(lru_queue, *p);
+        } else {
+            heapify(lru_queue);
+        }
     }
 
     // if switched states, print state
@@ -103,7 +111,7 @@ void run_process(Process **p, void *mem, p_state *curr_state,
 }
 
 void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
-                    int sim_time, stats_t *stats) {
+                    pqueue_t *lru_queue, int sim_time, stats_t *stats) {
     // update stats
     int turnaround_time = sim_time - (*p)->arrival_time;
     float time_overhead = (float)turnaround_time / (float)(*p)->service_time;
@@ -114,10 +122,10 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     }
     // delete node from queue and process from memory
     delete_node(node, *p);
+    delete_process(lru_queue, *p);
 
     free_memory(mem, p, strategy, (*p)->addr, (*p)->mem);
-    free(*p);
-    *p = NULL;
+    free_process(p);
 }
 
 void increment_sim_time(Process **p, int *sim_time, int quantum) {
