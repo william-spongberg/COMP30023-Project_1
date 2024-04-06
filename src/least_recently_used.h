@@ -5,8 +5,9 @@
 
 #define INIT_CAP 10
 
-// data structure for priority queue to store processes in their last execution time
-typedef struct pqueue{
+// data structure for priority queue to store processes in their last execution
+// time
+typedef struct pqueue {
     Process **processes;
     int size;
     int capacity;
@@ -23,10 +24,14 @@ void insert(pqueue_t *pq, Process *p);
 // Get the root of the heap, delete it and return it
 Process *peek(pqueue_t *pq);
 
-// determine priority of processes to be evicted, the one with the least recent execution time
+// determine priority of processes to be evicted, the one with the least recent
+// execution time
 int cmp_priority(Process *p1, Process *p2);
 
 // return if a process is in the queue
 bool in_queue(pqueue_t *pq, Process *p);
+
+void delete_process(pqueue_t *pq, Process *p);
+void free_pqueue(pqueue_t *pq);
 
 #endif

@@ -3,7 +3,9 @@
 // Create a new priority queue
 pqueue_t *create_pqueue() {
     pqueue_t *pq = (pqueue_t *)malloc(sizeof(pqueue_t));
+    assert(pq != NULL);
     pq->processes = (Process **)malloc(INIT_CAP * sizeof(Process *));
+    assert(pq->processes != NULL);
     pq->size = 0;
     pq->capacity = INIT_CAP;
     return pq;
@@ -13,7 +15,9 @@ pqueue_t *create_pqueue() {
 void insert(pqueue_t *pq, Process *p) {
     if (pq->size == pq->capacity) {
         pq->capacity *= 2;
-        pq->processes = (Process **)realloc(pq->processes, pq->capacity * sizeof(Process *));
+        pq->processes = (Process **)realloc(pq->processes,
+                                            pq->capacity * sizeof(Process *));
+        assert(pq->processes != NULL);
     }
 
     pq->processes[pq->size] = p;
@@ -28,11 +32,17 @@ void sift_down(pqueue_t *pq) {
     int right = 2 * i + 2;
     int smallest = i;
 
-    if (left < pq->size && cmp_priority(pq->processes[left], pq->processes[smallest]) < 0) {
+    if (pq->size <= 1) {
+        return;
+    }
+
+    if (left < pq->size &&
+        cmp_priority(pq->processes[left], pq->processes[smallest]) < 0) {
         smallest = left;
     }
 
-    if (right < pq->size && cmp_priority(pq->processes[right], pq->processes[smallest]) < 0) {
+    if (right < pq->size &&
+        cmp_priority(pq->processes[right], pq->processes[smallest]) < 0) {
         smallest = right;
     }
 
@@ -49,7 +59,6 @@ void heapify(pqueue_t *pq) {
     if (pq == NULL) {
         return;
     }
-
     sift_down(pq);
 }
 
@@ -76,10 +85,43 @@ bool in_queue(pqueue_t *pq, Process *p) {
     if (pq->size == 0) {
         return false;
     }
+    if (p == NULL) {
+        return false;
+    }
     for (int i = 0; i < pq->size; i++) {
+        if (pq->processes[i] == NULL) {
+            continue;
+        }
         if (cmp_process(pq->processes[i], p) == 0) {
             return true;
         }
     }
     return false;
+}
+
+void delete_process(pqueue_t *pq, Process *p) {
+    if (pq->size == 0) {
+        return;
+    }
+    if (p == NULL) {
+        return;
+    }
+    for (int i = 0; i < pq->size; i++) {
+        if (pq->processes[i] == NULL) {
+            continue;
+        }
+        if (cmp_process(pq->processes[i], p) == 0) {
+            pq->processes[i] = NULL;
+            pq->size--;
+            heapify(pq);
+            return;
+        }
+    }
+}
+
+void free_pqueue(pqueue_t *pq) {
+    free(pq->processes);
+    pq->processes = NULL;
+    free(pq);
+    pq = NULL;
 }
