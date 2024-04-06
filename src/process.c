@@ -51,3 +51,12 @@ void print_finished_process(Process *p, int sim_time, int list_length) {
     printf("%d,%s,process-name=%s,proc-remaining=%d\n", sim_time, get_state(p),
            p->name, list_length);
 }
+
+void free_process(Process **p) {
+    if ((*p)->pages != NULL) {
+        free((*p)->pages);
+        (*p)->pages = NULL;
+    }
+    free(*p);
+    *p = NULL;
+}
