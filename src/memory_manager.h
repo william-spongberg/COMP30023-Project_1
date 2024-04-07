@@ -47,7 +47,7 @@ bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue,
 void create_pages(Process **p);
 
 int16_t first_fit(block_memory_t *mem, int size);
-void paged_fit(Process **p, paged_memory_t **mem);
+void paged_fit(Process **p, paged_memory_t **mem, int pages_to_fit);
 int16_t virtual_fit(block_memory_t *mem, int size);
 
 void free_memory(void **mem, Process **p, mem_strategy strategy, int start,
@@ -61,7 +61,7 @@ void destroy_paged_memory(paged_memory_t *mem);
 
 void print_memory_process(Process *p, block_memory_t *mem, int sim_time);
 void print_paged_process(Process *p, paged_memory_t *mem, int sim_time);
-void print_evicted_frames(Process *p, int sim_time);
+void print_evicted_frames(Process *p, int sim_time, int num_frames);
 int get_block_mem_usage(block_memory_t *mem);
 int get_paged_mem_usage(paged_memory_t *mem);
 

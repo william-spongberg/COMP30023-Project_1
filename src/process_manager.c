@@ -24,7 +24,7 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             // print eviction message for finished process only for paged and
             // virtual
             if (strategy == PAGED || strategy == VIRTUAL) {
-                print_evicted_frames(p, sim_time);
+                print_evicted_frames(p, sim_time, ceil((float)p->mem / PAGE_SIZE));
             }
             print_finished_process(p, sim_time, list_length(queue) - 1);
             finish_process(&queue, &p, &mem, strategy, lru_queue, sim_time, &stats);
