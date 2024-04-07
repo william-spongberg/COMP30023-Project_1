@@ -10,9 +10,6 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
     pqueue_t *lru_queue = create_pqueue();
     FILE *file = open_file(filename);
 
-    // while processes are being loaded or there are still processes to run
-    // FIXME: gdb shows that P1 is loaded back into the queue after it has
-    // finished
     while (load_processes(&queue, &file, sim_time, quantum) ||
            (queue != NULL)) {
 
@@ -79,6 +76,9 @@ void print_process(Process *p, void *mem, mem_strategy strategy, int sim_time) {
         print_memory_process(p, mem, sim_time);
         break;
     case PAGED:
+        print_paged_process(p, mem, sim_time);
+        break;
+    case VIRTUAL:
         print_paged_process(p, mem, sim_time);
         break;
     default:

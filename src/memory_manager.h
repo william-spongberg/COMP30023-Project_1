@@ -42,13 +42,12 @@ bool attempt_allocation(Process **p, void **mem, mem_strategy strategy,
 bool first_fit_allocation(Process **p, block_memory_t *mem);
 bool paged_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
                       int sim_time);
-bool virtual_allocation(Process **p, paged_memory_t *mem, pqueue_t *lru_queue,
+bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
                         int sim_time);
 void create_pages(Process **p);
 
 int16_t first_fit(block_memory_t *mem, int size);
 void paged_fit(Process **p, paged_memory_t **mem, int pages_to_fit);
-int16_t virtual_fit(block_memory_t *mem, int size);
 
 void free_memory(void **mem, Process **p, mem_strategy strategy, int start,
                  int size);
