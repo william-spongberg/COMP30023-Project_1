@@ -3,6 +3,8 @@
 // create process
 Process *create_process(int arrival_time, char *name, int rtime, int mem,
                         p_state state) {
+
+    // printf("Creating process %s\n", name);
     Process *p = (Process *)malloc(sizeof(Process));
     assert(p != NULL);
 

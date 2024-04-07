@@ -188,10 +188,12 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     if ((*mem)->frames_available >= 4) {
         if ((*mem)->frames_available >= pages_required) {
             paged_fit(p, mem, pages_required);
+            return true;
         } else {
             paged_fit(p, mem, (*mem)->frames_available);
+            return true;
         }
-        return true;
+        
     } else {
         // less than 4 frames available, so allocate until 4 frames become available
         int pages_to_evict = 4 - (*mem)->frames_available;
