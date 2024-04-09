@@ -331,12 +331,18 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
         exit(EXIT_FAILURE);
     }
 
-    int num_pages = ceil((float)(p->mem) / PAGE_SIZE);
+    int pages_allocated = 0;
+    for (int i = 0; i < ceil((float)p->mem / PAGE_SIZE); i++) {
+        if (p->pages[i].is_allocated) {
+            pages_allocated++;
+        }
+    }
+
     printf(
         "%d,%s,process-name=%s,remaining-time=%d,mem-usage=%d%%,mem-frames=[",
         sim_time, get_state(p), p->name, p->rtime, get_paged_mem_usage(mem));
-    for (int i = 0; i < num_pages; i++) {
-        if (i == num_pages - 1) {
+    for (int i = 0; i < pages_allocated; i++) {
+        if (i == pages_allocated - 1) {
             printf("%d]\n", p->pages[i].frame_num);
         } else {
             printf("%d,", p->pages[i].frame_num);
@@ -345,9 +351,17 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
 }
 
 void print_evicted_frames(Process *p, int sim_time, int num_frames) {
+
+    int pages_to_evict = 0;
+    for (int i = 0; i < ceil((float)p->mem / PAGE_SIZE); i++) {
+        if (p->pages[i].is_allocated) {
+            pages_to_evict++;
+        }
+    }
+
     printf("%d,EVICTED,evicted-frames=[", sim_time);
-    for (int i = 0; i < num_frames; i++) {
-        if (i == num_frames - 1) {
+    for (int i = 0; i < pages_to_evict; i++) {
+        if (i == pages_to_evict - 1) {
             printf("%d]\n", p->pages[i].frame_num);
         } else {
             printf("%d,", p->pages[i].frame_num);
