@@ -1,6 +1,4 @@
 #include "read.h"
-#include <getopt.h>
-#include <unistd.h>
 
 void parse_command_line(int argc, char *argv[], char **filename,
                         mem_strategy *strategy, int *quantum) {
@@ -66,31 +64,43 @@ FILE *open_file(char *filename) {
     return file;
 }
 
-bool load_processes(Node **queue, char *filename, int sim_time, int quantum) {
+int load_processes(Node **queue, char *filename, int num_lines, int sim_time, int quantum) {
+    if (num_lines == -1) {
+        return -1;
+    }
+
+    // open file
     FILE *file = open_file(filename);
-    
+
     // format: arrival-time process-name remaining-time memory
     Process *p_temp;
     char name[8];
     int arrival_time, rtime;
     int mem = 0;
 
+    // read up to current line
+    for (int i = 0; i < num_lines; i++) {
+        fscanf(file, "%d %s %d %d", &arrival_time, name, &rtime, &mem);
+    }
+
     // read file
-    while (fscanf(file, "%d %s %d %d", &arrival_time, name, &rtime, &mem) !=
-           EOF) {
+    while (fscanf(file, "%d %s %d %d", &arrival_time, name, &rtime, &mem) != EOF) {
         // if arrived since last cycle, set to READY and add to linked list
         if ((arrival_time >= (sim_time - quantum)) &&
             (arrival_time <= sim_time)) {
+            //printf("inserting %s\n", name);
             p_temp = create_process(arrival_time, name, rtime, mem, READY);
             insert_node(queue, &p_temp);
+            num_lines++;
         } else if (arrival_time > sim_time) {
             fclose(file);
             file = NULL;
-            return true;
+            return num_lines;
         }
     }
+
     // if reached EOF and no nodes added -> no processes remaining
     fclose(file);
     file = NULL;
-    return false;
+    return -1;
 }
