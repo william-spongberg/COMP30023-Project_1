@@ -171,19 +171,22 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
         create_pages(p);
     }
 
-    // if pages are allocated, return true
-    bool allocated = true;
-    for (int i = 0; i < (*p)->mem / PAGE_SIZE; i++) {
-        if (!((*p)->pages[i].is_allocated)) {
-            allocated = false;
+    int pages_required = 0;
+    int pages_allocated = 0;
+
+    for (int i = 0; i < ceil((float)(*p)->mem / PAGE_SIZE); i++) {
+        if (!(*p)->pages[i].is_allocated) {
+            pages_required++;
+        } else {
+            pages_allocated++;
         }
     }
-    if (allocated) {
+    
+    if (pages_allocated >= 4) {
         return true;
     }
 
-
-    int pages_required = ceil((float)(*p)->mem / PAGE_SIZE);
+    
     
     if ((*mem)->frames_available >= 4) {
         if ((*mem)->frames_available >= pages_required) {
