@@ -64,8 +64,8 @@ FILE *open_file(char *filename) {
     return file;
 }
 
-int load_processes(Node **queue, char *filename, int num_lines, int sim_time, int quantum) {
-    if (num_lines == -1) {
+int load_processes(Node **queue, char *filename, int *num_lines, int sim_time, int quantum) {
+    if (*num_lines == -1) {
         return -1;
     }
 
@@ -91,16 +91,18 @@ int load_processes(Node **queue, char *filename, int num_lines, int sim_time, in
             //printf("inserting %s\n", name);
             p_temp = create_process(arrival_time, name, rtime, mem, READY);
             insert_node(queue, &p_temp);
-            num_lines++;
+            *num_lines++;
         } else if (arrival_time > sim_time) {
             fclose(file);
             file = NULL;
-            return num_lines;
+            return *num_lines;
         }
     }
 
     // if reached EOF and no nodes added -> no processes remaining
     fclose(file);
     file = NULL;
-    return -1;
+    
+    *num_lines = -1;
+    return *num_lines
 }
