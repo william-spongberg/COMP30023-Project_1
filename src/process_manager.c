@@ -10,7 +10,7 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
     pqueue_t *lru_queue = create_pqueue();
     int num_lines = 0;
 
-    while (((num_lines = load_processes(&queue, filename, num_lines, sim_time, quantum)) != -1) ||
+    while ((load_processes(&queue, filename, &num_lines, sim_time, quantum) != -1) ||
            (queue != NULL)) {
 
         // if process has completed its execution, delete it
@@ -41,7 +41,7 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             run_process(&p, mem, &curr_state, strategy, sim_time, lru_queue);
         }
 
-        if (((num_lines = load_processes(&queue, filename, num_lines, sim_time, quantum)) != -1) || (queue != NULL))
+        if ((load_processes(&queue, filename, &num_lines, sim_time, quantum) != -1) || (queue != NULL))
             // increment simulation arrival_time
             increment_sim_time(&p, &sim_time, quantum);
     }

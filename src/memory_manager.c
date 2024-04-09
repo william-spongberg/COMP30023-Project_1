@@ -206,12 +206,14 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
             for (int i = 0; i < pages_to_evict; i++) {
                 if (process_to_evict->pages[i].is_allocated) {
                     process_to_evict->pages[i].is_allocated = false;
+                    process_to_evict->mem -= PAGE_SIZE;
                     (*mem)->frames[process_to_evict->pages[i].frame_num].is_allocated = false;
                     (*mem)->frames_available++;
                 }
             }
 
             // Add process back to queue if it still has pages to evict
+            // TODO: meant to be process_to_evict's number of pages?
             if (ceil((float)process_to_evict->mem / PAGE_SIZE) > pages_to_evict) {
                 insert(lru_queue, process_to_evict);
             }
