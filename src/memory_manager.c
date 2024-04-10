@@ -183,6 +183,14 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     }
     
     if (pages_allocated >= 4) {
+        // check if more frames are available
+        if ((*mem)->frames_available >= pages_required) {
+            paged_fit(p, mem, pages_required);
+            return true;
+        } else {
+            paged_fit(p, mem, (*mem)->frames_available);
+            return true;
+        }
         return true;
     }
 
@@ -200,23 +208,36 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     } else {
         // less than 4 frames available, so allocate until 4 frames become available
         int pages_to_evict = 4 - (*mem)->frames_available;
-        Process *process_to_evict = peek(lru_queue);
         while ((*mem)->frames_available < 4) {
+            Process *process_to_evict = peek(lru_queue);
             print_evicted_frames(process_to_evict, sim_time, pages_to_evict);
-            for (int i = 0; i < pages_to_evict; i++) {
+            int start_evict = 0;
+
+            for (int i = 0; i < ceil((float)process_to_evict->mem / PAGE_SIZE); i++) {
+                if (process_to_evict->pages[i].is_allocated) {
+                    start_evict = i;
+                    break;
+                }
+            }
+
+            for (int i = start_evict; i < pages_to_evict + start_evict - 1; i++) {
                 if (process_to_evict->pages[i].is_allocated) {
                     process_to_evict->pages[i].is_allocated = false;
                     (*mem)->frames[process_to_evict->pages[i].frame_num].is_allocated = false;
-                    (*mem)->frames_available++;
+                    (*mem)->frames_available += 1;
+                }
+            }
+
+            // Add process back to queue if it still has pages to evict
+            for (int i = 0; i < ceil((float)process_to_evict->mem / PAGE_SIZE); i++) {
+                if (process_to_evict->pages[i].is_allocated) {
+                insert(lru_queue, process_to_evict);
+                break;
                 }
             }
             
         }
 
-        // Add process back to queue if it still has pages to evict
-        if (ceil((float)process_to_evict->mem / PAGE_SIZE) > pages_to_evict) {
-            insert(lru_queue, process_to_evict);
-        }
         // now do paged fit
         paged_fit(p, mem, pages_required);
         return true;
