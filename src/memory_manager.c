@@ -200,23 +200,22 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     } else {
         // less than 4 frames available, so allocate until 4 frames become available
         int pages_to_evict = 4 - (*mem)->frames_available;
-        while ((*mem)->frames_available < pages_required) {
-            Process *process_to_evict = peek(lru_queue);
+        Process *process_to_evict = peek(lru_queue);
+        while ((*mem)->frames_available < 4) {
             print_evicted_frames(process_to_evict, sim_time, pages_to_evict);
             for (int i = 0; i < pages_to_evict; i++) {
                 if (process_to_evict->pages[i].is_allocated) {
                     process_to_evict->pages[i].is_allocated = false;
-                    process_to_evict->mem -= PAGE_SIZE;
                     (*mem)->frames[process_to_evict->pages[i].frame_num].is_allocated = false;
                     (*mem)->frames_available++;
                 }
             }
+            
+        }
 
-            // Add process back to queue if it still has pages to evict
-            // TODO: meant to be process_to_evict's number of pages?
-            if (ceil((float)process_to_evict->mem / PAGE_SIZE) > pages_to_evict) {
-                insert(lru_queue, process_to_evict);
-            }
+        // Add process back to queue if it still has pages to evict
+        if (ceil((float)process_to_evict->mem / PAGE_SIZE) > pages_to_evict) {
+            insert(lru_queue, process_to_evict);
         }
         // now do paged fit
         paged_fit(p, mem, pages_required);
@@ -354,16 +353,10 @@ void print_paged_process(Process *p, paged_memory_t *mem, int sim_time) {
 
 void print_evicted_frames(Process *p, int sim_time, int num_frames) {
 
-    int pages_to_evict = 0;
-    for (int i = 0; i < ceil((float)p->mem / PAGE_SIZE); i++) {
-        if (p->pages[i].is_allocated) {
-            pages_to_evict++;
-        }
-    }
 
     printf("%d,EVICTED,evicted-frames=[", sim_time);
-    for (int i = 0; i < pages_to_evict; i++) {
-        if (i == pages_to_evict - 1) {
+    for (int i = 0; i < num_frames; i++) {
+        if (i == num_frames - 1) {
             printf("%d]\n", p->pages[i].frame_num);
         } else {
             printf("%d,", p->pages[i].frame_num);

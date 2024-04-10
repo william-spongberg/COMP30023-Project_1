@@ -79,7 +79,7 @@ int load_processes(Node **queue, char *filename, int *num_lines, int sim_time, i
     int mem = 0;
 
     // read up to current line
-    for (int i = 0; i < num_lines; i++) {
+    for (int i = 0; i < *num_lines; i++) {
         fscanf(file, "%d %s %d %d", &arrival_time, name, &rtime, &mem);
     }
 
@@ -91,7 +91,7 @@ int load_processes(Node **queue, char *filename, int *num_lines, int sim_time, i
             //printf("inserting %s\n", name);
             p_temp = create_process(arrival_time, name, rtime, mem, READY);
             insert_node(queue, &p_temp);
-            *num_lines++;
+            *num_lines += 1;
         } else if (arrival_time > sim_time) {
             fclose(file);
             file = NULL;
@@ -104,5 +104,5 @@ int load_processes(Node **queue, char *filename, int *num_lines, int sim_time, i
     file = NULL;
     
     *num_lines = -1;
-    return *num_lines
+    return *num_lines;
 }
