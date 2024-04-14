@@ -178,7 +178,7 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     int pages_required = 0;
     int pages_allocated = 0;
 
-    for (int i = 0; i < ceil((float)(*p)->mem / (float)PAGE_SIZE); i++) {
+    for (int i = 0; i < ceil((float)(*p)->mem / PAGE_SIZE); i++) {
         if (!(*p)->pages[i].is_allocated) {
             pages_required++;
         } else {
@@ -194,9 +194,9 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     if (pages_allocated >= 4) {
         // check if more frames are available
         if ((*mem)->frames_available >= pages_required) {
-            paged_fit(p, mem, pages_required);
+            //paged_fit(p, mem, pages_required);
         } else {
-            paged_fit(p, mem, (*mem)->frames_available);
+            //paged_fit(p, mem, (*mem)->frames_available);
         }
     } else {
         // less than 4 frames available, so allocate until 4 frames become
@@ -204,7 +204,15 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
         int start_evict = 0;
 
         while ((*mem)->frames_available < 4) {
+            fprintf(stderr, "frames available: %d\n", (*mem)->frames_available);
+
             Process *process_to_evict = peek(lru_queue);
+
+            if (process_to_evict == NULL) {
+                fprintf(stderr, "No process to evict\n");
+                return false;
+            }
+
             int pages_to_evict = 4 - (*mem)->frames_available;
             print_evicted_frames(process_to_evict, sim_time, pages_to_evict);
 
@@ -299,7 +307,11 @@ void free_paged_memory(paged_memory_t **mem, Process *p) {
     for (int i = 0; i < (float)p->mem / (float)PAGE_SIZE; i++) {
         (*mem)->frames[p->pages[i].frame_num].is_allocated = false;
         (*mem)->frames_available += 1;
+        //fprintf(stderr, "Freed frame %d\n", p->pages[i].frame_num);
     }
+    fprintf(stderr, "frames available: %d\n", (*mem)->frames_available);
+    fprintf(stderr, "pages freed: %d\n", (int) ((float)p->mem / PAGE_SIZE));
+    fprintf(stderr, "mem used: %d\n", get_paged_mem_usage(*mem));
 }
 
 // clean up
