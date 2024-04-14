@@ -31,11 +31,13 @@ void sift_down(pqueue_t *pq, int i) {
     int left = 2 * i + 1;
     int right = 2 * i + 2;
 
-    if (left < pq->size && cmp_priority(pq->processes[left], pq->processes[min]) < 0) {
+    if (left < pq->size &&
+        cmp_priority(pq->processes[left], pq->processes[min]) < 0) {
         min = left;
     }
 
-    if (right < pq->size && cmp_priority(pq->processes[right], pq->processes[min]) < 0) {
+    if (right < pq->size &&
+        cmp_priority(pq->processes[right], pq->processes[min]) < 0) {
         min = right;
     }
 

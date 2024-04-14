@@ -10,7 +10,8 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
     pqueue_t *lru_queue = create_pqueue();
     int num_lines = 0;
 
-    while ((load_processes(&queue, filename, &num_lines, sim_time, quantum) != -1) ||
+    while ((load_processes(&queue, filename, &num_lines, sim_time, quantum) !=
+            -1) ||
            (queue != NULL)) {
 
         // if process has completed its execution, delete it
@@ -21,10 +22,12 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             // print eviction message for finished process only for paged and
             // virtual
             if (strategy == PAGED || strategy == VIRTUAL) {
-                print_evicted_frames(p, sim_time, ceil((float)p->mem / PAGE_SIZE));
+                print_evicted_frames(p, sim_time,
+                                     ceil((float)p->mem / PAGE_SIZE));
             }
             print_finished_process(p, sim_time, list_length(queue) - 1);
-            finish_process(&queue, &p, &mem, strategy, lru_queue, sim_time, &stats);
+            finish_process(&queue, &p, &mem, strategy, lru_queue, sim_time,
+                           &stats);
         }
 
         // update state of current process, state of newly allocated process
@@ -41,7 +44,9 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             run_process(&p, mem, &curr_state, strategy, sim_time, lru_queue);
         }
 
-        if ((load_processes(&queue, filename, &num_lines, sim_time, quantum) != -1) || (queue != NULL))
+        if ((load_processes(&queue, filename, &num_lines, sim_time, quantum) !=
+             -1) ||
+            (queue != NULL))
             // increment simulation arrival_time
             increment_sim_time(&p, &sim_time, quantum);
     }
