@@ -19,13 +19,6 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
             stats.num_processes++;
             p->state = FINISHED;
             curr_state = p->state;
-            // print eviction message for finished process only for paged and
-            // virtual
-            if (strategy == PAGED || strategy == VIRTUAL) {
-                print_evicted_frames(p, sim_time,
-                                     ceil((float)p->mem / PAGE_SIZE));
-            }
-            print_finished_process(p, sim_time, list_length(queue) - 1);
             finish_process(&queue, &p, &mem, strategy, lru_queue, sim_time,
                            &stats);
         }
@@ -131,7 +124,9 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
 
     if (strategy == PAGED || strategy == VIRTUAL) {
         delete_process(lru_queue, *p);
+        print_evicted_frames(*p, sim_time, ceil((float)(*p)->mem / PAGE_SIZE));
     }
+    print_finished_process(*p, sim_time, list_length(*node));
 
     free_memory(mem, p, strategy, (*p)->addr, (*p)->mem);
     free_process(p);
