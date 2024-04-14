@@ -99,11 +99,14 @@ void run_process(Process **p, void *mem, p_state *curr_state,
 
     // Record last execution time
     (*p)->last_exec = sim_time;
-    // If process is not in queue insert, else heapify the queue
-    if (!in_queue(lru_queue, *p)) {
-        insert(lru_queue, *p);
-    } else {
-        heapify(lru_queue);
+
+    if (strategy == PAGED || strategy == VIRTUAL) {
+        // If process is not in queue insert, else heapify the queue
+        if (!in_queue(lru_queue, *p)) {
+            insert(lru_queue, *p);
+        } else {
+            heapify(lru_queue);
+        }
     }
 
     // if switched states, print state
@@ -125,7 +128,10 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     }
     // delete node from queue and process from memory
     delete_node(node, *p);
-    delete_process(lru_queue, *p);
+
+    if (strategy == PAGED || strategy == VIRTUAL) {
+        delete_process(lru_queue, *p);
+    }
 
     free_memory(mem, p, strategy, (*p)->addr, (*p)->mem);
     free_process(p);
