@@ -112,7 +112,6 @@ int16_t first_fit(block_memory_t *mem, int size) {
 // allocate memory using paged strategy
 bool paged_alloc(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
                  int sim_time) {
-
     // if pages not allocated, create pages
     if ((*p)->pages == NULL) {
         create_pages(p);
@@ -161,9 +160,10 @@ bool paged_alloc(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
 
 // create pages for process
 void create_pages(Process **p) {
-    (*p)->pages = (page_t *)malloc(sizeof(page_t) * ((*p)->mem / PAGE_SIZE));
+    (*p)->pages = (page_t *)malloc(sizeof(page_t) *
+                                   (ceil((float)(*p)->mem / (float)PAGE_SIZE)));
     assert((*p)->pages != NULL);
-    for (int i = 0; (float)i < (*p)->mem / PAGE_SIZE; i++) {
+    for (int i = 0; i < ceil(((float)(*p)->mem / (float)PAGE_SIZE)); i++) {
         (*p)->pages[i].frame_num = -1;
         (*p)->pages[i].is_allocated = false;
     }
