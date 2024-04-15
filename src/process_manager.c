@@ -46,7 +46,7 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
 
     // calculate statistics
     int avg_turnaround_time =
-        round((double)stats.total_turnaround_time / stats.num_processes);
+        ceil((double)stats.total_turnaround_time / stats.num_processes);
     float avg_time_overhead = stats.total_time_overhead / stats.num_processes;
     printf("Turnaround time %d\n", avg_turnaround_time);
     printf("Time overhead %.2f %.2f\n", stats.max_time_overhead,
@@ -56,33 +56,6 @@ void run_simulation(char *filename, mem_strategy strategy, int quantum) {
     // free memory
     destroy_memory(mem, strategy);
     free_pqueue(lru_queue);
-}
-
-bool process_completed(Process *p) {
-    if (p == NULL) {
-        return false;
-    }
-    return p->rtime == 0;
-}
-
-void print_process(Process *p, void *mem, mem_strategy strategy, int sim_time) {
-    switch (strategy) {
-    case INFINITE:
-        print_running_process(p, sim_time);
-        break;
-    case FIRST_FIT:
-        print_memory_process(p, mem, sim_time);
-        break;
-    case PAGED:
-        print_paged_process(p, mem, sim_time);
-        break;
-    case VIRTUAL:
-        print_paged_process(p, mem, sim_time);
-        break;
-    default:
-        fprintf(stderr, "Invalid memory strategy\n");
-        exit(EXIT_FAILURE);
-    }
 }
 
 void run_process(Process **p, void *mem, p_state *curr_state,
@@ -132,6 +105,13 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     free_process(p);
 }
 
+bool process_completed(Process *p) {
+    if (p == NULL) {
+        return false;
+    }
+    return p->rtime == 0;
+}
+
 void increment_sim_time(Process **p, int *sim_time, int quantum) {
     *sim_time += quantum;
     // run the process
@@ -153,4 +133,24 @@ stats_t new_stats() {
     stats.total_time_overhead = 0;
     stats.max_time_overhead = 0;
     return stats;
+}
+
+void print_process(Process *p, void *mem, mem_strategy strategy, int sim_time) {
+    switch (strategy) {
+    case INFINITE:
+        print_running_process(p, sim_time);
+        break;
+    case FIRST_FIT:
+        print_memory_process(p, mem, sim_time);
+        break;
+    case PAGED:
+        print_paged_process(p, mem, sim_time);
+        break;
+    case VIRTUAL:
+        print_paged_process(p, mem, sim_time);
+        break;
+    default:
+        fprintf(stderr, "Invalid memory strategy\n");
+        exit(EXIT_FAILURE);
+    }
 }
