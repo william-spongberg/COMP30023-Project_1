@@ -204,12 +204,12 @@ bool virtual_allocation(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
         int start_evict = 0;
 
         while ((*mem)->frames_available < 4) {
-            fprintf(stderr, "frames available: %d\n", (*mem)->frames_available);
+            //fprintf(stderr, "frames available: %d\n", (*mem)->frames_available);
 
             Process *process_to_evict = peek(lru_queue);
 
             if (process_to_evict == NULL) {
-                fprintf(stderr, "No process to evict\n");
+                //fprintf(stderr, "No process to evict\n");
                 return false;
             }
 
@@ -265,7 +265,7 @@ void paged_fit(Process **p, paged_memory_t **mem, int pages_to_fit) {
             (*p)->pages[j].frame_num = i;
             (*p)->pages[j].is_allocated = true;
             (*mem)->frames[i].is_allocated = true;
-            (*mem)->frames_available--;
+            (*mem)->frames_available -= 1;
             j++;
         }
         i++;
@@ -305,13 +305,15 @@ void free_block_memory(block_memory_t *mem, int start, int size) {
 
 void free_paged_memory(paged_memory_t **mem, Process *p) {
     for (int i = 0; i < (float)p->mem / (float)PAGE_SIZE; i++) {
-        (*mem)->frames[p->pages[i].frame_num].is_allocated = false;
-        (*mem)->frames_available += 1;
-        //fprintf(stderr, "Freed frame %d\n", p->pages[i].frame_num);
+        if (p->pages[i].is_allocated) {
+            //fprintf(stderr, "Freed frame %d\n", p->pages[i].frame_num);
+            (*mem)->frames[p->pages[i].frame_num].is_allocated = false;
+            (*mem)->frames_available += 1;
+        }
     }
-    fprintf(stderr, "frames available: %d\n", (*mem)->frames_available);
-    fprintf(stderr, "pages freed: %d\n", (int) ((float)p->mem / PAGE_SIZE));
-    fprintf(stderr, "mem used: %d\n", get_paged_mem_usage(*mem));
+    //fprintf(stderr, "frames available: %d\n", (*mem)->frames_available);
+    //fprintf(stderr, "pages freed: %d\n", (int) ((float)p->mem / PAGE_SIZE));
+    //fprintf(stderr, "mem used: %d\n", get_paged_mem_usage(*mem));
 }
 
 // clean up
