@@ -6,7 +6,6 @@ void parse_command_line(int argc, char *argv[], char **filename,
     while ((opt = getopt(argc, argv, "f:m:q:")) != -1) {
         switch (opt) {
         case 'f':
-            // if breaks use strcpy()
             *filename = optarg;
             break;
         case 'm':
@@ -64,8 +63,9 @@ FILE *open_file(char *filename) {
     return file;
 }
 
-int load_processes(Node **queue, char *filename, int *num_lines, int sim_time,
-                   int quantum) {
+int load_processes_from_file(Node **queue, char *filename, int *num_lines,
+                             int sim_time, int quantum) {
+    // if -1, already finished reading file
     if (*num_lines == -1) {
         return -1;
     }

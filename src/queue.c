@@ -99,7 +99,7 @@ void print_list(Node *head) {
     Node *temp = head;
     do {
         print_running_process(temp->process, 0);
-        printf("points to "); // %p\n", temp->next);
+        printf("points to ");
         print_running_process(temp->next->process, 0);
         temp = temp->next;
     } while (temp != head);

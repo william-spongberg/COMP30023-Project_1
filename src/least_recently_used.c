@@ -1,6 +1,6 @@
 #include "least_recently_used.h"
 
-// Create a new priority queue
+// create new priority queue
 pqueue_t *create_pqueue() {
     pqueue_t *pq = (pqueue_t *)malloc(sizeof(pqueue_t));
     assert(pq != NULL);
@@ -11,8 +11,8 @@ pqueue_t *create_pqueue() {
     return pq;
 }
 
-// Insert a process into the heap
-void insert(pqueue_t *pq, Process *p) {
+// insert process into heap
+void enqueue(pqueue_t *pq, Process *p) {
     if (pq->size == pq->capacity) {
         pq->capacity *= 2;
         pq->processes = (Process **)realloc(pq->processes,
@@ -49,9 +49,8 @@ void sift_down(pqueue_t *pq, int i) {
     }
 }
 
-// heapify a random array
+// heapify the priority queue
 void heapify(pqueue_t *pq) {
-    // print out all process name in the heap
     if (pq == NULL || pq->size == 0) {
         return;
     }
@@ -60,8 +59,8 @@ void heapify(pqueue_t *pq) {
     }
 }
 
-// Peek
-Process *peek(pqueue_t *pq) {
+// dequeue the root of the heap
+Process *dequeue(pqueue_t *pq) {
     if (pq->size == 0) {
         return NULL;
     }
@@ -73,7 +72,7 @@ Process *peek(pqueue_t *pq) {
     return root;
 }
 
-// cmp_priority compares the last execution time of two processes
+// compare last execution time of two processes
 int cmp_priority(Process *p1, Process *p2) {
     if (p1 == NULL || p2 == NULL) {
         return 0;
@@ -81,7 +80,7 @@ int cmp_priority(Process *p1, Process *p2) {
     return (p1->last_exec) - (p2->last_exec);
 }
 
-// return if a process is in the queue
+// return if process is in the queue
 bool in_queue(pqueue_t *pq, Process *p) {
     if (pq->size == 0) {
         return false;
@@ -100,6 +99,7 @@ bool in_queue(pqueue_t *pq, Process *p) {
     return false;
 }
 
+// delete process from queue
 void delete_process(pqueue_t *pq, Process *p) {
     if (pq->size == 0) {
         return;
@@ -120,6 +120,7 @@ void delete_process(pqueue_t *pq, Process *p) {
     }
 }
 
+// free priority queue
 void free_pqueue(pqueue_t *pq) {
     free(pq->processes);
     pq->processes = NULL;
