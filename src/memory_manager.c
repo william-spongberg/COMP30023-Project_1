@@ -129,7 +129,7 @@ bool paged_alloc(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     }
 
     // if pages not allocated, allocate frames
-    int pages_required = ceil((float)(*p)->mem / PAGE_SIZE);
+    int pages_required = ceil((float)(*p)->mem / (float)PAGE_SIZE);
     if ((*mem)->frames_available >= pages_required) {
         paged_fit(p, mem, pages_required);
         return true;
@@ -139,7 +139,7 @@ bool paged_alloc(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
             Process *process_to_evict = dequeue(lru_queue);
 
             // print evicted frames
-            int pages_to_evict = ceil((float)process_to_evict->mem / PAGE_SIZE);
+            int pages_to_evict = ceil((float)process_to_evict->mem / (float)PAGE_SIZE);
             print_evicted_frames(process_to_evict, sim_time, pages_to_evict);
 
             // evict pages
@@ -174,7 +174,7 @@ void paged_fit(Process **p, paged_memory_t **mem, int pages_to_fit) {
     int i = 0;
     int j = 0;
     // insert pages into available frames
-    while (i < (float)MEM_SIZE / (float)PAGE_SIZE && j < pages_to_fit) {
+    while (i < ceil((float)MEM_SIZE / (float)PAGE_SIZE) && j < pages_to_fit) {
         if (!(*mem)->frames[i].is_allocated) {
             (*p)->pages[j].frame_num = i;
             (*p)->pages[j].is_allocated = true;
@@ -198,7 +198,7 @@ bool virtual_alloc(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
     // get number of pages required/allocated
     int pages_required = 0;
     int pages_allocated = 0;
-    for (int i = 0; i < ceil((float)(*p)->mem / PAGE_SIZE); i++) {
+    for (int i = 0; i < ceil((float)(*p)->mem / (float)PAGE_SIZE); i++) {
         if (!(*p)->pages[i].is_allocated) {
             pages_required++;
         } else {
@@ -221,7 +221,7 @@ bool virtual_alloc(Process **p, paged_memory_t **mem, pqueue_t *lru_queue,
             print_evicted_frames(process_to_evict, sim_time, pages_to_evict);
 
             // find the first allocated page to start evict
-            for (; start_evict < ceil((float)process_to_evict->mem / PAGE_SIZE);
+            for (; start_evict < ceil((float)process_to_evict->mem / (float)PAGE_SIZE);
                  start_evict++) {
                 if (process_to_evict->pages[start_evict].is_allocated) {
                     break;
@@ -291,7 +291,7 @@ void free_block_memory(block_memory_t *mem, int start, int size) {
 
 // free paged memory
 void free_paged_memory(paged_memory_t **mem, Process *p) {
-    for (int i = 0; i < (float)p->mem / (float)PAGE_SIZE; i++) {
+    for (int i = 0; i < ceil((float)p->mem / (float)PAGE_SIZE); i++) {
         if (p->pages[i].is_allocated) {
             (*mem)->frames[p->pages[i].frame_num].is_allocated = false;
             (*mem)->frames_available += 1;
