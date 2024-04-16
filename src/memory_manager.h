@@ -3,7 +3,6 @@
 
 #include "least_recently_used.h"
 #include "read.h"
-#include <math.h>
 
 #define MEM_SIZE 2048 // KB
 #define NUM_PAGES 512 // 2048 / 4

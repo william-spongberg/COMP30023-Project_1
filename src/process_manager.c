@@ -121,7 +121,7 @@ void finish_process(Node **node, Process **p, void **mem, mem_strategy strategy,
     // print evicted frames + finished process
     if (strategy == PAGED || strategy == VIRTUAL) {
         delete_process(lru_queue, *p);
-        print_evicted_frames(*p, sim_time, ceil((float)(*p)->mem / PAGE_SIZE));
+        print_evicted_frames(*p, sim_time, get_page_count(*p));
     }
     print_finished_process(*p, sim_time, list_length(*node));
 

@@ -43,6 +43,10 @@ char *get_state(Process *p) {
     }
 }
 
+int get_page_count(Process *p) {
+    return ceil((float)p->mem / (float)PAGE_SIZE);
+}
+
 // print process info
 void print_running_process(Process *p, int sim_time) {
     printf("%d,%s,process-name=%s,remaining-time=%d\n", sim_time, get_state(p),

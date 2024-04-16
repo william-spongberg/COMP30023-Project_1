@@ -2,6 +2,7 @@
 #define process_H
 
 #include <assert.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -34,6 +35,8 @@ Process *create_process(int arrival_time, char *name, int rtime, int mem,
                         p_state state);
 int cmp_process(Process *p1, Process *p2);
 char *get_state(Process *p);
+int get_page_count(Process *p);
+
 void print_running_process(Process *p, int sim_time);
 void print_finished_process(Process *p, int sim_time, int list_length);
 void free_process(Process **p);
